@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "server": "node server/index.js",
+    "seed": "node server/seed.js",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -12,9 +14,19 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.3.1",
     "axios": "^1.17.0",
+    "bcryptjs": "^3.0.3",
+    "cloudinary": "^2.10.0",
     "clsx": "^2.1.1",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
     "framer-motion": "^12.40.0",
+    "jsonwebtoken": "^9.0.3",
     "lucide-react": "^1.18.0",
+    "mongoose": "^9.7.0",
+    "morgan": "^1.11.0",
+    "multer": "^2.1.1",
+    "nodemailer": "^9.0.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-hook-form": "^7.79.0",
