@@ -1,50 +1,50 @@
-import { ArrowUpRight, Download, Mail, Menu, Monitor, Palette, X } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, Code2, Download, ExternalLink, Layers3, Loader2, Lock, Mail, Menu, MonitorSmartphone, Palette, Send, Sparkles, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useEffect, useMemo, useState } from 'react';
-import type { ElementType } from 'react';
-import { Link, Route, Routes, useLocation } from 'react-router-dom';
+import type { ComponentType } from 'react';
+import { Link, Route, Routes, useLocation, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import type { SubmitHandler } from 'react-hook-form';
 import { FaFigma, FaGithub, FaLinkedinIn } from 'react-icons/fa';
 import { SiMongodb, SiNodedotjs, SiReact, SiTailwindcss, SiTypescript } from 'react-icons/si';
-import { usePortfolioStore } from './Store/usePortfolioStore';
-import { developerProjects, uiProjects } from './data/projects';
-import type { DeveloperProject, ProjectFilter, ProjectVariant, UiProject } from './data/projects';
+import { fetchProject, fetchProjects, sendMessage } from './lib/api';
+import type { MessageFormValues, Project, ProjectFilter } from './types';
 
-type IconComponent = ElementType<{ size?: number; className?: string }>;
+const filters: ProjectFilter[] = ['All', 'Development', 'UI/UX'];
 
-type ContactFormValues = {
-  name: string;
-  email: string;
-  message: string;
-};
-
-const techStack = [
-  { label: 'Vite', icon: SiReact, color: 'text-taupe' },
-  { label: 'Tailwind', icon: SiTailwindcss, color: 'text-steelblue' },
-  { label: 'TypeScript', icon: SiTypescript, color: 'text-taupe' },
-  { label: 'Node.js', icon: SiNodedotjs, color: 'text-emerald-300' },
-  { label: 'MongoDB', icon: SiMongodb, color: 'text-emerald-400' },
-  { label: 'Figma', icon: FaFigma, color: 'text-slate' }
+const skills = [
+  { label: 'React + Vite', icon: SiReact },
+  { label: 'TypeScript', icon: SiTypescript },
+  { label: 'Tailwind CSS', icon: SiTailwindcss },
+  { label: 'Node.js + Express', icon: SiNodedotjs },
+  { label: 'MongoDB + Mongoose', icon: SiMongodb },
+  { label: 'Figma UI/UX', icon: FaFigma }
 ];
 
-const strengths = ['Full-stack builds', 'UI/UX thinking', 'Clear communication', 'Product-minded details'];
+function ScrollToTop() {
+  const { pathname, hash } = useLocation();
 
-const filterTabs: Array<[ProjectFilter, string]> = [
-  ['all', 'All'],
-  ['dev', 'Developer'],
-  ['ui', 'UI/UX']
-];
+  useEffect(() => {
+    if (hash) {
+      document.querySelector(hash)?.scrollIntoView({ behavior: 'smooth' });
+      return;
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [hash, pathname]);
+
+  return null;
+}
 
 function Logo() {
   return (
-    <Link to="/" className="flex items-center gap-3" aria-label="Daniel Halabi home">
+    <Link className="logo-lockup" to="/" aria-label="Daniel Halabi home">
       <span className="logo-frame">
         <img src="/dh-monogram.png" alt="" />
       </span>
       <span>
         <span className="brand-name">Daniel Halabi</span>
-        <span className="block text-xs text-mist">Full Stack Developer & UI/UX Designer</span>
+        <span className="block text-xs text-muted">Full Stack Developer & UI/UX Designer</span>
       </span>
     </Link>
   );
@@ -52,46 +52,51 @@ function Logo() {
 
 function Header() {
   const [open, setOpen] = useState(false);
-  const links = [
-    { label: 'Home', to: '/#home' },
-    { label: 'Projects', to: '/projects' },
-    { label: 'Contact Us', to: '/#contact' }
+  const nav = [
+    { label: 'About', to: '/#about' },
+    { label: 'Skills', to: '/#skills' },
+    { label: 'Projects', to: '/#projects' },
+    { label: 'Contact', to: '/#contact' }
   ];
 
   return (
-    <header className="sticky top-0 z-30 border-b border-line/70 bg-ink/85 backdrop-blur-xl">
+    <header className="sticky top-0 z-40 border-b border-border/80 bg-bg/85 backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 md:px-8">
         <Logo />
-        <nav className="hidden items-center gap-10 text-sm md:flex">
-          {links.map((item) => (
-            <Link key={item.label} className="text-slate-200 transition hover:text-paper" to={item.to}>
+        <nav className="hidden items-center gap-8 text-sm md:flex">
+          {nav.map((item) => (
+            <Link className="nav-link" key={item.label} to={item.to}>
               {item.label}
             </Link>
           ))}
+          <Link className="nav-link" to="/admin/login">
+            <Lock size={14} /> Admin
+          </Link>
         </nav>
-        <div className="hidden md:block">
-          <a className="btn-primary" href="/DanielHalabiCV.pdf" download>
-            Download CV <Download size={16} />
-          </a>
-        </div>
+        <a className="btn-primary hidden md:inline-flex" href="/DanielHalabiCV.pdf" download>
+          <Download size={16} /> Download CV
+        </a>
         <button className="icon-button md:hidden" type="button" aria-label="Open menu" onClick={() => setOpen(true)}>
           <Menu size={20} />
         </button>
       </div>
       {open && (
-        <div className="border-t border-line bg-panel px-5 py-4 md:hidden">
+        <div className="border-t border-border bg-surface px-5 py-4 md:hidden">
           <div className="mb-4 flex items-center justify-between">
-            <span className="text-sm font-semibold">Menu</span>
+            <span className="text-sm font-semibold text-text">Menu</span>
             <button className="icon-button" type="button" aria-label="Close menu" onClick={() => setOpen(false)}>
               <X size={18} />
             </button>
           </div>
           <div className="grid gap-3">
-            {links.map((item) => (
-              <Link key={item.label} className="rounded-md border border-line px-4 py-3 text-sm" to={item.to} onClick={() => setOpen(false)}>
+            {nav.map((item) => (
+              <Link className="mobile-link" key={item.label} to={item.to} onClick={() => setOpen(false)}>
                 {item.label}
               </Link>
             ))}
+            <Link className="mobile-link" to="/admin/login" onClick={() => setOpen(false)}>
+              Admin
+            </Link>
           </div>
         </div>
       )}
@@ -99,251 +104,277 @@ function Header() {
   );
 }
 
-function HeroVisual() {
-  return (
-    <motion.div className="hero-visual" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }}>
-      <div className="dashboard-card">
-        <aside className="dashboard-rail">
-          {['A', 'H', 'P', 'M', 'S', 'C'].map((item) => (
-            <span key={item}>{item}</span>
-          ))}
-        </aside>
-        <div className="dashboard-main">
-          <h3>Dashboard</h3>
-          <div className="stats-grid">
-            <div className="stat-card">
-              <span>Total Users</span>
-              <strong>12,540</strong>
-              <small>+12.5%</small>
-              <div className="sparkline" />
-            </div>
-            <div className="stat-card">
-              <span>Revenue</span>
-              <strong>$48,250</strong>
-              <small>+8.2%</small>
-              <div className="bars">
-                <i /><i /><i /><i /><i />
-              </div>
-            </div>
-          </div>
-          <div className="orders-card">
-            {['Olivia Rhye', 'Phoenix Baker', 'Lana Steiner'].map((name, index) => (
-              <div key={name}>
-                <span>{name}</span>
-                <b>${[125, 220, 160][index]}.00</b>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-      <div className="phone-card">
-        <span className="phone-notch" />
-        <p>Welcome back!</p>
-        <small>Analytics</small>
-        <strong>$48,250</strong>
-        <div className="phone-chart" />
-        <ul>
-          <li><span>iPhone 15 Pro</span><b>$1,250</b></li>
-          <li><span>MacBook Air</span><b>$999</b></li>
-          <li><span>AirPods Max</span><b>$549</b></li>
-        </ul>
-      </div>
-    </motion.div>
-  );
-}
-
 function Hero() {
   return (
-    <section id="home" className="section-grid min-h-[calc(100vh-73px)] items-center py-12 md:py-20">
-      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
-        <span className="pill">Hello, I'm Daniel</span>
-        <h1 className="mt-6 max-w-2xl text-4xl font-bold leading-tight text-white sm:text-5xl lg:text-6xl">
-          I <span className="text-accent">Design</span> polished interfaces & <span className="text-accent-muted">Build</span> practical full-stack products
+    <section className="hero-section" id="home">
+      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}>
+        <span className="eyebrow"><Sparkles size={14} /> Available for select projects</span>
+        <h1 className="mt-6 max-w-3xl text-4xl font-bold leading-tight text-text sm:text-5xl lg:text-6xl">
+          Building developer-focused products with polished UI/UX.
         </h1>
-        <p className="mt-5 max-w-xl text-base leading-7 text-mist">
-          I'm a full stack developer and UI/UX designer who turns ideas into clean, useful digital products. I like working across the whole journey: shaping the experience in Figma, building reliable frontends with Vite, TypeScript, and Tailwind, and connecting them to practical Node and MongoDB backends.
+        <p className="mt-5 max-w-2xl text-base leading-8 text-muted">
+          I am Daniel Halabi, a full-stack developer and UI/UX designer creating fast React interfaces,
+          practical Node and MongoDB backends, and clean product experiences that feel easy to use.
         </p>
-        <div className="mt-6 flex flex-wrap gap-3">
-          {strengths.map((item) => (
-            <span className="pill" key={item}>{item}</span>
-          ))}
-        </div>
-        <div className="mt-7 flex flex-wrap gap-4">
-          <a className="btn-primary" href="/DanielHalabiCV.pdf" download>
-            Download CV <Download size={16} />
-          </a>
-          <a className="btn-secondary" href="#contact">Hire Me</a>
-        </div>
-        <div className="mt-8 flex flex-wrap items-center gap-4">
-          <span className="text-sm text-slate-300">Tech I work with:</span>
-          {techStack.map(({ label, icon: Icon, color }) => (
-            <span key={label} className={`tech-icon ${color}`} title={label}>
-              <Icon />
-            </span>
-          ))}
+        <div className="mt-8 flex flex-wrap gap-4">
+          <Link className="btn-primary" to="/#projects">
+            View Projects <ArrowUpRight size={16} />
+          </Link>
+          <Link className="btn-secondary" to="/#contact">
+            Contact Me <Mail size={16} />
+          </Link>
         </div>
       </motion.div>
-      <HeroVisual />
+      <motion.div className="hero-panel" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.45 }}>
+        <div className="panel-header">
+          <span />
+          <span />
+          <span />
+        </div>
+        <div className="panel-grid">
+          <div>
+            <small>Role</small>
+            <strong>Full Stack</strong>
+          </div>
+          <div>
+            <small>Design</small>
+            <strong>UI/UX</strong>
+          </div>
+          <div>
+            <small>Stack</small>
+            <strong>MERN</strong>
+          </div>
+          <div>
+            <small>Focus</small>
+            <strong>Products</strong>
+          </div>
+        </div>
+        <div className="code-card">
+          <span>const portfolio = &#123;</span>
+          <span>  frontend: 'React + TypeScript',</span>
+          <span>  backend: 'Express + MongoDB',</span>
+          <span>  design: 'Figma + usability'</span>
+          <span>&#125;</span>
+        </div>
+      </motion.div>
     </section>
   );
 }
 
-function ProjectThumbnail({ variant }: { variant: ProjectVariant }) {
+function About() {
   return (
-    <div className={`thumb thumb-${variant}`}>
-      <div className="thumb-nav" />
-      <div className="thumb-body">
-        <span />
-        <span />
-        <span />
-        <span />
+    <section className="section" id="about">
+      <div className="section-heading">
+        <span className="eyebrow"><Layers3 size={14} /> About</span>
+        <h2>Practical engineering with a designer's eye.</h2>
       </div>
+      <div className="about-grid">
+        <p>
+          I work across the full product path: shaping user flows, designing interfaces, building frontends,
+          connecting APIs, and making sure the final result is clear, responsive, and easy to maintain.
+        </p>
+        <div className="metric-grid">
+          <span><strong>6+</strong> Featured projects</span>
+          <span><strong>2</strong> Core disciplines</span>
+          <span><strong>MERN</strong> Preferred stack</span>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Skills() {
+  return (
+    <section className="section" id="skills">
+      <div className="section-heading">
+        <span className="eyebrow"><Code2 size={14} /> Skills</span>
+        <h2>Tools I use to ship reliable digital products.</h2>
+      </div>
+      <div className="skill-grid">
+        {skills.map(({ label, icon: Icon }) => (
+          <div className="skill-card" key={label}>
+            <Icon size={24} />
+            <span>{label}</span>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function ProjectVisual({ project }: { project: Project }) {
+  if (project.image?.url) {
+    return <img className="project-image" src={project.image.url} alt={project.title} />;
+  }
+
+  return (
+    <div className="project-placeholder">
+      {project.category === 'Development' ? <MonitorSmartphone size={34} /> : <Palette size={34} />}
+      <span>{project.category}</span>
     </div>
   );
 }
 
-type ProjectCardProps =
-  | { project: DeveloperProject; type: 'dev' }
-  | { project: UiProject; type: 'ui' };
-
-function ProjectCard({ project, type }: ProjectCardProps) {
+function ProjectCard({ project }: { project: Project }) {
   return (
-    <motion.article className="project-card" whileHover={{ y: -5 }} transition={{ type: 'spring', stiffness: 260, damping: 22 }}>
-      <ProjectThumbnail variant={project.variant} />
+    <motion.article className="project-card" whileHover={{ y: -5 }} transition={{ type: 'spring', stiffness: 250, damping: 22 }}>
+      <ProjectVisual project={project} />
+      <div className="mt-5 flex items-center justify-between gap-3">
+        <span className="category-pill">{project.category}</span>
+        {project.featured && <span className="featured-pill">Featured</span>}
+      </div>
       <h3>{project.title}</h3>
       <p>{project.description}</p>
-      {type === 'dev' ? (
-        <div className="mt-4 flex flex-wrap gap-2">
-          {project.stack.map((item: string) => <span className="tag" key={item}>{item}</span>)}
-        </div>
-      ) : null}
-      <div className="mt-5 grid grid-cols-2 gap-3">
-        {type === 'dev' ? (
-          <>
-            {project.demoUrl && <a className="btn-card" href={project.demoUrl} target="_blank" rel="noreferrer">Live Demo <ArrowUpRight size={15} /></a>}
-            <a className={`btn-card ${project.demoUrl ? '' : 'col-span-2'}`} href={project.githubUrl} target="_blank" rel="noreferrer">GitHub <FaGithub size={15} /></a>
-          </>
-        ) : (
-          project.figmaUrl ? (
-            <a className="btn-card col-span-2" href={project.figmaUrl} target="_blank" rel="noreferrer">
-              <span className="figma-dot" /> View on Figma
-            </a>
-          ) : (
-            <span className="btn-card col-span-2 text-mist">
-              <span className="figma-dot" /> Case study coming soon
-            </span>
-          )
-        )}
+      <div className="tag-row">
+        {project.technologies.slice(0, 4).map((tech) => <span className="tag" key={tech}>{tech}</span>)}
+      </div>
+      <div className="card-actions">
+        <Link className="btn-card" to={`/projects/${project.slug}`}>
+          Details <ArrowUpRight size={15} />
+        </Link>
+        {project.githubUrl && <a className="icon-link" href={project.githubUrl} target="_blank" rel="noreferrer" aria-label="GitHub"><FaGithub size={17} /></a>}
+        {project.liveUrl && <a className="icon-link" href={project.liveUrl} target="_blank" rel="noreferrer" aria-label="Live demo"><ExternalLink size={17} /></a>}
+        {project.figmaUrl && <a className="icon-link" href={project.figmaUrl} target="_blank" rel="noreferrer" aria-label="Figma"><FaFigma size={17} /></a>}
       </div>
     </motion.article>
   );
 }
 
-type ProjectSectionProps =
-  | { icon: IconComponent; title: string; projects: DeveloperProject[]; type: 'dev'; showMore?: boolean }
-  | { icon: IconComponent; title: string; projects: UiProject[]; type: 'ui'; showMore?: boolean };
+function Projects() {
+  const [filter, setFilter] = useState<ProjectFilter>('All');
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-function ProjectSection({ icon: Icon, title, projects, type, showMore = true }: ProjectSectionProps) {
-  const setFilter = usePortfolioStore((state) => state.setFilter);
+  useEffect(() => {
+    let active = true;
+
+    fetchProjects(filter)
+      .then((items) => {
+        if (active) setProjects(items);
+      })
+      .catch(() => {
+        if (active) setError('Projects could not be loaded. Make sure the API and MongoDB are running.');
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [filter]);
 
   return (
-    <section className="mt-11">
-      <div className="mb-5 flex items-center justify-between gap-4">
-        <h3 className="flex items-center gap-3 text-xl font-semibold text-white">
-          <Icon size={22} /> {title}
-        </h3>
-        {showMore && (
-          <Link className="btn-small" to="/projects" onClick={() => setFilter(type)}>
-            Show More <ArrowUpRight size={14} />
-          </Link>
-        )}
+    <section className="section" id="projects">
+      <div className="section-heading centered">
+        <span className="eyebrow"><MonitorSmartphone size={14} /> Projects</span>
+        <h2>Dynamic work pulled from MongoDB.</h2>
+        <p>Filter development builds and UI/UX case studies from the backend project collection.</p>
       </div>
-      <div className="grid gap-7 md:grid-cols-2 xl:grid-cols-3">
-        {type === 'dev'
-          ? projects.map((project) => <ProjectCard key={project.title} project={project} type="dev" />)
-          : projects.map((project) => <ProjectCard key={project.title} project={project} type="ui" />)}
+      <div className="filter-tabs">
+        {filters.map((item) => (
+          <button
+            className={filter === item ? 'active' : ''}
+            key={item}
+            type="button"
+            onClick={() => {
+              setFilter(item);
+              setLoading(true);
+              setError('');
+            }}
+          >
+            {item}
+          </button>
+        ))}
       </div>
+      {loading && <StateMessage icon={Loader2} title="Loading projects" message="Fetching the latest portfolio projects..." spinning />}
+      {error && <StateMessage title="Project API unavailable" message={error} />}
+      {!loading && !error && (
+        <div className="projects-grid">
+          {projects.map((project) => <ProjectCard key={project._id} project={project} />)}
+          {projects.length === 0 && <StateMessage title="No projects found" message="Try another filter or add projects from the admin dashboard." />}
+        </div>
+      )}
     </section>
   );
 }
 
-function Projects() {
-  const filter = usePortfolioStore((state) => state.filter);
-  const setFilter = usePortfolioStore((state) => state.setFilter);
-  const filteredDev = useMemo(() => filter === 'ui' ? [] : developerProjects, [filter]);
-  const filteredUi = useMemo(() => filter === 'dev' ? [] : uiProjects, [filter]);
-
+function StateMessage({ title, message, icon: Icon, spinning = false }: { title: string; message: string; icon?: ComponentType<{ size?: number; className?: string }>; spinning?: boolean }) {
   return (
-    <main id="projects" className="border-t border-line/50 py-14 md:py-20">
-      <div className="mx-auto max-w-7xl px-5 md:px-8">
-        <div className="mx-auto max-w-xl text-center">
-          <h2 className="text-3xl font-bold text-white">Projects</h2>
-          <p className="mt-3 text-mist">A selection of my recent work</p>
-          <div className="mt-6 inline-flex rounded-md border border-line bg-panel p-1">
-            {filterTabs.map(([value, label]) => (
-              <button key={value} className={`filter-tab ${filter === value ? 'active' : ''}`} type="button" onClick={() => setFilter(value)}>
-                {label}
-              </button>
-            ))}
-          </div>
-        </div>
-        {filteredDev.length > 0 && <ProjectSection icon={Monitor} title="Developer Projects" projects={filteredDev} type="dev" />}
-        {filteredUi.length > 0 && <ProjectSection icon={Palette} title="UI/UX Projects" projects={filteredUi} type="ui" />}
-      </div>
-    </main>
+    <div className="state-message">
+      {Icon && <Icon className={spinning ? 'animate-spin' : ''} size={22} />}
+      <strong>{title}</strong>
+      <span>{message}</span>
+    </div>
   );
 }
 
-function AllProjectsPage() {
-  const filter = usePortfolioStore((state) => state.filter);
-  const setFilter = usePortfolioStore((state) => state.setFilter);
-  const filteredDev = useMemo(() => filter === 'ui' ? [] : developerProjects, [filter]);
-  const filteredUi = useMemo(() => filter === 'dev' ? [] : uiProjects, [filter]);
-  const totalVisible = filteredDev.length + filteredUi.length;
+function Contact() {
+  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<MessageFormValues>();
+  const [status, setStatus] = useState('');
+  const [failed, setFailed] = useState(false);
+
+  const onSubmit: SubmitHandler<MessageFormValues> = async (values) => {
+    setStatus('');
+    setFailed(false);
+
+    try {
+      await sendMessage(values);
+      setStatus('Message sent successfully. I will get back to you soon.');
+      reset();
+    } catch {
+      setFailed(true);
+      setStatus('Message could not be sent right now. Please try again later.');
+    }
+  };
 
   return (
-    <>
-      <Header />
-      <main className="projects-page">
-        <div className="mx-auto max-w-7xl px-5 py-12 md:px-8 md:py-16">
-          <div className="projects-page-header">
-            <div>
-              <Link className="btn-small" to="/#projects">Back to Home</Link>
-              <h1 className="mt-6 text-4xl font-bold text-white md:text-5xl">All Projects</h1>
-              <p className="mt-4 max-w-2xl text-mist">
-                Browse the full project archive and filter it by development work or UI/UX design case studies.
-              </p>
-            </div>
-            <div className="filter-panel">
-              {filterTabs.map(([value, label]) => (
-                <button key={value} className={`filter-tab ${filter === value ? 'active' : ''}`} type="button" onClick={() => setFilter(value)}>
-                  {label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="mt-10 flex items-center justify-between gap-4 border-y border-line/70 py-4">
-            <span className="text-sm font-semibold text-white">{totalVisible} projects shown</span>
-            <span className="text-sm text-mist">Filtered by {filterTabs.find(([value]) => value === filter)?.[1]}</span>
-          </div>
-
-          {filteredDev.length > 0 && (
-            <ProjectSection icon={Monitor} title="Developer Projects" projects={filteredDev} type="dev" showMore={false} />
-          )}
-          {filteredUi.length > 0 && (
-            <ProjectSection icon={Palette} title="UI/UX Projects" projects={filteredUi} type="ui" showMore={false} />
-          )}
-          {totalVisible === 0 && (
-            <div className="empty-state">
-              <h2>No projects found</h2>
-              <p>Try switching to another filter.</p>
-            </div>
-          )}
+    <section className="section contact-section" id="contact">
+      <div>
+        <span className="eyebrow"><Mail size={14} /> Contact</span>
+        <h2>Have a product, dashboard, or interface in mind?</h2>
+        <p>Send a message and it will be stored in MongoDB for dashboard review, with email notification support on the backend.</p>
+        <div className="social-row">
+          <a href="https://github.com/DanielHalabi5" target="_blank" rel="noreferrer" aria-label="GitHub"><FaGithub /></a>
+          <a href="https://linkedin.com/" target="_blank" rel="noreferrer" aria-label="LinkedIn"><FaLinkedinIn /></a>
+          <a href="https://www.figma.com/" target="_blank" rel="noreferrer" aria-label="Figma"><FaFigma size={18} /></a>
         </div>
-      </main>
-      <Footer />
-    </>
+      </div>
+      <form className="contact-form" onSubmit={handleSubmit(onSubmit)}>
+        <label>
+          <span>Name</span>
+          <input {...register('name', { required: 'Name is required' })} placeholder="Your name" />
+          {errors.name && <small>{errors.name.message}</small>}
+        </label>
+        <label>
+          <span>Email</span>
+          <input type="email" {...register('email', { required: 'Email is required' })} placeholder="you@example.com" />
+          {errors.email && <small>{errors.email.message}</small>}
+        </label>
+        <label className="md:col-span-2">
+          <span>Message</span>
+          <textarea rows={5} {...register('message', { required: 'Message is required' })} placeholder="Tell me about the project" />
+          {errors.message && <small>{errors.message.message}</small>}
+        </label>
+        <button className="btn-primary md:col-span-2" type="submit" disabled={isSubmitting}>
+          {isSubmitting ? <Loader2 className="animate-spin" size={16} /> : <Send size={16} />}
+          {isSubmitting ? 'Sending...' : 'Send Message'}
+        </button>
+        {status && <p className={`form-status md:col-span-2 ${failed ? 'error' : 'success'}`}>{status}</p>}
+      </form>
+    </section>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="border-t border-border py-8">
+      <div className="mx-auto flex max-w-7xl flex-col gap-5 px-5 md:flex-row md:items-center md:justify-between md:px-8">
+        <Logo />
+        <p className="text-sm text-muted">© 2026 Daniel Halabi. Built with React, Express, and MongoDB.</p>
+      </div>
+    </footer>
   );
 }
 
@@ -351,130 +382,94 @@ function HomePage() {
   return (
     <>
       <Header />
-      <Hero />
-      <Projects />
-      <Contact />
+      <main>
+        <Hero />
+        <About />
+        <Skills />
+        <Projects />
+        <Contact />
+      </main>
       <Footer />
     </>
   );
 }
 
-function ScrollToHash() {
-  const { hash, pathname } = useLocation();
+function ProjectDetailsPage() {
+  const { slug } = useParams();
+  const [project, setProject] = useState<Project | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    if (!hash) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
+    if (!slug) return;
+    let active = true;
 
-    const target = document.querySelector(hash);
-    target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, [hash, pathname]);
-
-  return null;
-}
-
-function Contact() {
-  const { register, handleSubmit, reset, formState: { errors, isSubmitSuccessful } } = useForm<ContactFormValues>();
-  const [status, setStatus] = useState('');
-
-  const onSubmit: SubmitHandler<ContactFormValues> = async (values) => {
-    setStatus('Sending...');
-    try {
-      const res = await fetch('/api/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(values)
+    fetchProject(slug)
+      .then((item) => {
+        if (active) setProject(item);
+      })
+      .catch(() => {
+        if (active) setError('Project details could not be loaded.');
+      })
+      .finally(() => {
+        if (active) setLoading(false);
       });
-      if (!res.ok) throw new Error('Message failed');
-      setStatus('Message sent. I will get back to you soon.');
-      reset();
-    } catch {
-      setStatus('Saved locally for now. Connect MongoDB to persist messages.');
-    }
-  };
+
+    return () => {
+      active = false;
+    };
+  }, [slug]);
+
+  const links = useMemo(() => {
+    if (!project) return [];
+    return [
+      { label: 'GitHub', href: project.githubUrl, icon: FaGithub },
+      { label: 'Live Demo', href: project.liveUrl, icon: ExternalLink },
+      { label: 'Figma', href: project.figmaUrl, icon: FaFigma }
+    ].filter((item) => item.href);
+  }, [project]);
 
   return (
-    <section id="contact" className="border-t border-line/50 py-14">
-      <div className="mx-auto grid max-w-7xl gap-10 px-5 md:grid-cols-[0.9fr_1.1fr] md:px-8">
-        <div>
-          <h2 className="text-3xl font-bold text-white">Let's Connect</h2>
-          <p className="mt-4 max-w-md text-mist">Have an app idea, website, dashboard, or interface that needs both technical structure and thoughtful design? I can help shape it, build it, and keep the experience clear for real users.</p>
-          <div className="mt-7 flex gap-3">
-            <a className="icon-button" href="https://github.com/DanielHalabi5" target="_blank" rel="noreferrer" aria-label="GitHub"><FaGithub size={18} /></a>
-            <a className="icon-button" href="https://linkedin.com/" target="_blank" rel="noreferrer" aria-label="LinkedIn"><FaLinkedinIn size={18} /></a>
-            <a className="icon-button" href="https://www.figma.com/" target="_blank" rel="noreferrer" aria-label="Figma"><FaFigma size={18} /></a>
-            <a className="icon-button" href="#contact" aria-label="Contact form"><Mail size={18} /></a>
-          </div>
-        </div>
-        <form className="contact-form" onSubmit={handleSubmit(onSubmit)}>
-          <label>
-            <span>Name</span>
-            <input {...register('name', { required: 'Name is required' })} placeholder="Your name" />
-            {errors.name && <small>{errors.name.message}</small>}
-          </label>
-          <label>
-            <span>Email</span>
-            <input type="email" {...register('email', { required: 'Email is required' })} placeholder="you@example.com" />
-            {errors.email && <small>{errors.email.message}</small>}
-          </label>
-          <label className="md:col-span-2">
-            <span>Message</span>
-            <textarea rows={5} {...register('message', { required: 'Message is required' })} placeholder="Tell me about the project" />
-            {errors.message && <small>{errors.message.message}</small>}
-          </label>
-          <button className="btn-primary md:col-span-2" type="submit">Contact Me <ArrowUpRight size={16} /></button>
-          {(status || isSubmitSuccessful) && <p className="md:col-span-2 text-sm text-paper">{status}</p>}
-        </form>
-      </div>
-    </section>
-  );
-}
-
-function Footer() {
-  return (
-    <footer className="border-t border-line bg-[#111418] py-8">
-      <div className="mx-auto grid max-w-7xl gap-8 px-5 md:grid-cols-4 md:px-8">
-        <div>
-          <Logo />
-          <p className="mt-4 text-sm leading-6 text-mist">Designing thoughtful interfaces and building full-stack products that feel clear, fast, and useful.</p>
-        </div>
-        <div>
-          <h4>Quick Links</h4>
-          <a href="#home">Home</a>
-          <a href="#projects">Projects</a>
-          <a href="#contact">Contact Us</a>
-        </div>
-        <div>
-          <h4>Services</h4>
-          <span>UI/UX Design in Figma</span>
-          <span>Frontend Development</span>
-          <span>Node & MongoDB Backends</span>
-        </div>
-        <div>
-          <h4>Let's Connect</h4>
-          <p className="text-sm text-mist">Have a project in mind? Let's build something polished, practical, and easy to use.</p>
-          <a className="btn-secondary mt-4 inline-flex" href="#contact">Contact Me <ArrowUpRight size={15} /></a>
-        </div>
-      </div>
-      <p className="mx-auto mt-8 max-w-7xl border-t border-line px-5 pt-5 text-center text-xs text-mist md:px-8">
-        © 2026 Daniel Halabi. All rights reserved.
-      </p>
-    </footer>
+    <>
+      <Header />
+      <main className="detail-page">
+        <Link className="btn-secondary w-fit" to="/#projects"><ArrowLeft size={16} /> Back to projects</Link>
+        {loading && <StateMessage icon={Loader2} title="Loading project" message="Fetching project details..." spinning />}
+        {error && <StateMessage title="Project unavailable" message={error} />}
+        {project && (
+          <article className="detail-layout">
+            <ProjectVisual project={project} />
+            <div>
+              <span className="category-pill">{project.category}</span>
+              <h1>{project.title}</h1>
+              <p>{project.description}</p>
+              <div className="tag-row">
+                {project.technologies.map((tech) => <span className="tag" key={tech}>{tech}</span>)}
+              </div>
+              <div className="mt-8 flex flex-wrap gap-3">
+                {links.map(({ label, href, icon: Icon }) => (
+                  <a className="btn-card" key={label} href={href} target="_blank" rel="noreferrer">
+                    <Icon size={16} /> {label}
+                  </a>
+                ))}
+              </div>
+            </div>
+          </article>
+        )}
+      </main>
+      <Footer />
+    </>
   );
 }
 
 export default function App() {
   return (
-    <div className="min-h-screen bg-ink text-white">
-      <div className="site-shell">
-        <ScrollToHash />
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/projects" element={<AllProjectsPage />} />
-        </Routes>
-      </div>
+    <div className="min-h-screen bg-bg text-text">
+      <ScrollToTop />
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/projects/:slug" element={<ProjectDetailsPage />} />
+      </Routes>
     </div>
   );
 }
