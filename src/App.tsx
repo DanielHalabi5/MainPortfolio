@@ -1,14 +1,14 @@
 import { ArrowLeft, ArrowUpRight, Code2, Download, ExternalLink, Layers3, Loader2, Lock, Mail, Menu, MonitorSmartphone, Palette, Send, Sparkles, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useEffect, useMemo, useState } from 'react';
-import type { ComponentType } from 'react';
-import { Link, Route, Routes, useLocation, useParams } from 'react-router-dom';
+import type { ComponentType, ReactNode } from 'react';
+import { Link, Navigate, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import type { SubmitHandler } from 'react-hook-form';
 import { FaFigma, FaGithub, FaLinkedinIn } from 'react-icons/fa';
 import { SiMongodb, SiNodedotjs, SiReact, SiTailwindcss, SiTypescript } from 'react-icons/si';
-import { fetchProject, fetchProjects, sendMessage } from './lib/api';
-import type { MessageFormValues, Project, ProjectFilter } from './types';
+import { clearAdminToken, createProject, deleteMessage, deleteProject, fetchMessages, fetchOverview, fetchProject, fetchProjects, getAdminToken, loginAdmin, sendMessage, updateMessageRead, updateProject } from './lib/api';
+import type { DashboardOverview, Message, MessageFormValues, Project, ProjectFilter, ProjectFormValues } from './types';
 
 const filters: ProjectFilter[] = ['All', 'Development', 'UI/UX'];
 
@@ -462,6 +462,366 @@ function ProjectDetailsPage() {
   );
 }
 
+function ProtectedRoute({ children }: { children: ReactNode }) {
+  if (!getAdminToken()) {
+    return <Navigate to="/admin/login" replace />;
+  }
+
+  return children;
+}
+
+function AdminLoginPage() {
+  const navigate = useNavigate();
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<{ email: string; password: string }>();
+  const [error, setError] = useState('');
+
+  const onSubmit: SubmitHandler<{ email: string; password: string }> = async (values) => {
+    setError('');
+
+    try {
+      await loginAdmin(values);
+      navigate('/admin', { replace: true });
+    } catch {
+      setError('Invalid admin credentials.');
+    }
+  };
+
+  return (
+    <main className="admin-auth">
+      <form className="admin-login-card" onSubmit={handleSubmit(onSubmit)}>
+        <Logo />
+        <div>
+          <h1>Admin Login</h1>
+          <p>Sign in to manage projects and portfolio messages.</p>
+        </div>
+        <label>
+          <span>Email</span>
+          <input type="email" {...register('email', { required: 'Email is required' })} placeholder="admin@example.com" />
+          {errors.email && <small>{errors.email.message}</small>}
+        </label>
+        <label>
+          <span>Password</span>
+          <input type="password" {...register('password', { required: 'Password is required' })} placeholder="Your password" />
+          {errors.password && <small>{errors.password.message}</small>}
+        </label>
+        {error && <p className="form-status error">{error}</p>}
+        <button className="btn-primary" type="submit" disabled={isSubmitting}>
+          {isSubmitting ? <Loader2 className="animate-spin" size={16} /> : <Lock size={16} />}
+          {isSubmitting ? 'Signing in...' : 'Sign In'}
+        </button>
+        <Link className="text-sm text-muted transition hover:text-primary" to="/">Back to portfolio</Link>
+      </form>
+    </main>
+  );
+}
+
+function AdminLayout({ children }: { children: ReactNode }) {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const links = [
+    { label: 'Overview', to: '/admin' },
+    { label: 'Projects', to: '/admin/projects' },
+    { label: 'Messages', to: '/admin/messages' }
+  ];
+
+  return (
+    <div className="admin-shell">
+      <aside className="admin-sidebar">
+        <Logo />
+        <nav>
+          {links.map((item) => (
+            <Link className={location.pathname === item.to ? 'active' : ''} key={item.to} to={item.to}>
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+        <button
+          className="btn-secondary"
+          type="button"
+          onClick={() => {
+            clearAdminToken();
+            navigate('/admin/login', { replace: true });
+          }}
+        >
+          Logout
+        </button>
+      </aside>
+      <main className="admin-main">{children}</main>
+    </div>
+  );
+}
+
+function AdminOverview() {
+  const [overview, setOverview] = useState<DashboardOverview | null>(null);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    let active = true;
+
+    fetchOverview()
+      .then((data) => {
+        if (active) setOverview(data);
+      })
+      .catch(() => {
+        if (active) setError('Dashboard overview could not be loaded.');
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  return (
+    <AdminLayout>
+      <div className="admin-heading">
+        <span className="eyebrow">Dashboard</span>
+        <h1>Portfolio Overview</h1>
+        <p>Track project inventory and incoming contact messages.</p>
+      </div>
+      {error && <StateMessage title="Overview unavailable" message={error} />}
+      <div className="admin-stats">
+        <span><strong>{overview?.totalProjects ?? '-'}</strong>Total projects</span>
+        <span><strong>{overview?.totalMessages ?? '-'}</strong>Total messages</span>
+        <span><strong>{overview?.unreadMessages ?? '-'}</strong>Unread messages</span>
+      </div>
+    </AdminLayout>
+  );
+}
+
+function AdminProjects() {
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [editing, setEditing] = useState<Project | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    let active = true;
+
+    fetchProjects('All')
+      .then((items) => {
+        if (active) setProjects(items);
+      })
+      .catch(() => {
+        if (active) setError('Projects could not be loaded.');
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  async function refreshProjects() {
+    const items = await fetchProjects('All');
+    setProjects(items);
+  }
+
+  async function handleDelete(id: string) {
+    await deleteProject(id);
+    await refreshProjects();
+  }
+
+  return (
+    <AdminLayout>
+      <div className="admin-heading">
+        <span className="eyebrow">Projects</span>
+        <h1>Manage Projects</h1>
+        <p>Add, edit, delete, and update portfolio project images.</p>
+      </div>
+      <ProjectForm
+        key={editing?._id || 'new'}
+        editing={editing}
+        onCancel={() => setEditing(null)}
+        onSaved={async () => {
+          setEditing(null);
+          await refreshProjects();
+        }}
+      />
+      {loading && <StateMessage icon={Loader2} title="Loading projects" message="Fetching dashboard projects..." spinning />}
+      {error && <StateMessage title="Projects unavailable" message={error} />}
+      <div className="admin-table">
+        {projects.map((project) => (
+          <div className="admin-row" key={project._id}>
+            <div>
+              <strong>{project.title}</strong>
+              <span>{project.category} • {project.technologies.join(', ') || 'No technologies'}</span>
+            </div>
+            <div className="admin-actions">
+              <button className="btn-card" type="button" onClick={() => setEditing(project)}>Edit</button>
+              <button className="btn-danger" type="button" onClick={() => void handleDelete(project._id)}>Delete</button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </AdminLayout>
+  );
+}
+
+function ProjectForm({ editing, onSaved, onCancel }: { editing: Project | null; onSaved: () => Promise<void>; onCancel: () => void }) {
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<ProjectFormValues>({
+    defaultValues: {
+      title: editing?.title || '',
+      slug: editing?.slug || '',
+      category: editing?.category || 'Development',
+      description: editing?.description || '',
+      imageUrl: editing?.image?.url || '',
+      technologies: editing?.technologies.join(', ') || '',
+      githubUrl: editing?.githubUrl || '',
+      liveUrl: editing?.liveUrl || '',
+      figmaUrl: editing?.figmaUrl || '',
+      featured: Boolean(editing?.featured)
+    }
+  });
+  const [error, setError] = useState('');
+
+  const onSubmit: SubmitHandler<ProjectFormValues> = async (values) => {
+    setError('');
+
+    try {
+      if (editing) {
+        await updateProject(editing._id, values);
+      } else {
+        await createProject(values);
+      }
+
+      await onSaved();
+    } catch {
+      setError('Project could not be saved. Check required fields and API credentials.');
+    }
+  };
+
+  return (
+    <form className="project-form" onSubmit={handleSubmit(onSubmit)}>
+      <div className="form-title">
+        <h2>{editing ? 'Edit Project' : 'Add Project'}</h2>
+        {editing && <button className="btn-secondary" type="button" onClick={onCancel}>Cancel Edit</button>}
+      </div>
+      <label>
+        <span>Title</span>
+        <input {...register('title', { required: 'Title is required' })} />
+        {errors.title && <small>{errors.title.message}</small>}
+      </label>
+      <label>
+        <span>Slug</span>
+        <input {...register('slug')} placeholder="auto-generated if empty" />
+      </label>
+      <label>
+        <span>Category</span>
+        <select {...register('category', { required: true })}>
+          <option value="Development">Development</option>
+          <option value="UI/UX">UI/UX</option>
+        </select>
+      </label>
+      <label>
+        <span>Technologies</span>
+        <input {...register('technologies')} placeholder="React, Node.js, MongoDB" />
+      </label>
+      <label className="md:col-span-2">
+        <span>Description</span>
+        <textarea rows={4} {...register('description', { required: 'Description is required' })} />
+        {errors.description && <small>{errors.description.message}</small>}
+      </label>
+      <label>
+        <span>GitHub URL</span>
+        <input {...register('githubUrl')} />
+      </label>
+      <label>
+        <span>Live Demo URL</span>
+        <input {...register('liveUrl')} />
+      </label>
+      <label>
+        <span>Figma URL</span>
+        <input {...register('figmaUrl')} />
+      </label>
+      <label>
+        <span>Image URL</span>
+        <input {...register('imageUrl')} />
+      </label>
+      <label>
+        <span>Upload Image</span>
+        <input type="file" accept="image/*" {...register('image')} />
+      </label>
+      <label className="checkbox-field">
+        <input type="checkbox" {...register('featured')} />
+        <span>Featured project</span>
+      </label>
+      {error && <p className="form-status error md:col-span-2">{error}</p>}
+      <button className="btn-primary md:col-span-2" type="submit" disabled={isSubmitting}>
+        {isSubmitting ? <Loader2 className="animate-spin" size={16} /> : null}
+        {editing ? 'Save Project' : 'Add Project'}
+      </button>
+    </form>
+  );
+}
+
+function AdminMessages() {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    let active = true;
+
+    fetchMessages()
+      .then((items) => {
+        if (active) setMessages(items);
+      })
+      .catch(() => {
+        if (active) setError('Messages could not be loaded.');
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  async function toggleRead(message: Message) {
+    const updated = await updateMessageRead(message._id, !message.read);
+    setMessages((current) => current.map((item) => item._id === updated._id ? updated : item));
+  }
+
+  async function removeMessage(id: string) {
+    await deleteMessage(id);
+    setMessages((current) => current.filter((item) => item._id !== id));
+  }
+
+  return (
+    <AdminLayout>
+      <div className="admin-heading">
+        <span className="eyebrow">Messages</span>
+        <h1>Contact Inbox</h1>
+        <p>Review, mark, and delete messages submitted through the portfolio contact form.</p>
+      </div>
+      {loading && <StateMessage icon={Loader2} title="Loading messages" message="Fetching contact submissions..." spinning />}
+      {error && <StateMessage title="Messages unavailable" message={error} />}
+      <div className="message-list">
+        {messages.map((message) => (
+          <article className={`message-card ${message.read ? 'read' : ''}`} key={message._id}>
+            <div>
+              <strong>{message.name}</strong>
+              <a href={`mailto:${message.email}`}>{message.email}</a>
+              <time>{new Date(message.createdAt).toLocaleString()}</time>
+            </div>
+            <p>{message.message}</p>
+            <div className="admin-actions">
+              <button className="btn-card" type="button" onClick={() => void toggleRead(message)}>
+                Mark {message.read ? 'Unread' : 'Read'}
+              </button>
+              <button className="btn-danger" type="button" onClick={() => void removeMessage(message._id)}>Delete</button>
+            </div>
+          </article>
+        ))}
+        {!loading && !error && messages.length === 0 && <StateMessage title="No messages yet" message="New contact form messages will appear here." />}
+      </div>
+    </AdminLayout>
+  );
+}
+
 export default function App() {
   return (
     <div className="min-h-screen bg-bg text-text">
@@ -469,6 +829,10 @@ export default function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/projects/:slug" element={<ProjectDetailsPage />} />
+        <Route path="/admin/login" element={<AdminLoginPage />} />
+        <Route path="/admin" element={<ProtectedRoute><AdminOverview /></ProtectedRoute>} />
+        <Route path="/admin/projects" element={<ProtectedRoute><AdminProjects /></ProtectedRoute>} />
+        <Route path="/admin/messages" element={<ProtectedRoute><AdminMessages /></ProtectedRoute>} />
       </Routes>
     </div>
   );

@@ -26,3 +26,38 @@ export type MessageFormValues = {
 };
 
 export type ProjectFilter = 'All' | ProjectCategory;
+
+export type AdminUser = {
+  id: string;
+  name: string;
+  email: string;
+};
+
+export type Message = {
+  _id: string;
+  name: string;
+  email: string;
+  message: string;
+  read: boolean;
+  createdAt: string;
+};
+
+export type DashboardOverview = {
+  totalProjects: number;
+  totalMessages: number;
+  unreadMessages: number;
+};
+
+export type ProjectFormValues = {
+  title: string;
+  slug?: string;
+  category: ProjectCategory;
+  description: string;
+  imageUrl?: string;
+  technologies: string;
+  githubUrl?: string;
+  liveUrl?: string;
+  figmaUrl?: string;
+  featured: boolean;
+  image?: FileList;
+};

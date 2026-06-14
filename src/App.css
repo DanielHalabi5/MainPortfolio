@@ -356,6 +356,152 @@ h4,
   .detail-layout p {
     @apply mt-4 text-base leading-8 text-muted;
   }
+
+  .admin-auth {
+    @apply grid min-h-screen place-items-center px-5 py-10;
+  }
+
+  .admin-login-card {
+    @apply grid w-full max-w-md gap-5 rounded-2xl border border-border bg-surface p-6 shadow-card;
+  }
+
+  .admin-login-card h1,
+  .admin-heading h1 {
+    @apply text-3xl font-bold text-text;
+  }
+
+  .admin-login-card p,
+  .admin-heading p {
+    @apply mt-2 text-sm leading-6 text-muted;
+  }
+
+  .admin-login-card label,
+  .project-form label {
+    @apply grid gap-2;
+  }
+
+  .admin-login-card label span,
+  .project-form label span {
+    @apply text-sm font-semibold text-text;
+  }
+
+  .admin-login-card input,
+  .project-form input,
+  .project-form textarea,
+  .project-form select {
+    @apply w-full rounded-lg border border-border bg-bg px-4 py-3 text-sm text-text outline-none transition placeholder:text-muted focus:border-primary;
+  }
+
+  .admin-login-card small,
+  .project-form small {
+    @apply text-xs text-red-300;
+  }
+
+  .admin-shell {
+    @apply min-h-screen bg-bg md:grid md:grid-cols-[280px_1fr];
+  }
+
+  .admin-sidebar {
+    @apply sticky top-0 z-30 flex flex-col gap-8 border-b border-border bg-surface p-5 md:h-screen md:border-b-0 md:border-r;
+  }
+
+  .admin-sidebar nav {
+    @apply grid gap-2;
+  }
+
+  .admin-sidebar nav a {
+    @apply rounded-lg px-4 py-3 text-sm font-semibold text-muted transition hover:bg-primary/10 hover:text-primary;
+  }
+
+  .admin-sidebar nav a.active {
+    @apply bg-primary text-bg;
+  }
+
+  .admin-main {
+    @apply px-5 py-8 md:px-8 lg:px-10;
+  }
+
+  .admin-heading {
+    @apply mb-8;
+  }
+
+  .admin-stats {
+    @apply grid gap-4 sm:grid-cols-3;
+  }
+
+  .admin-stats span {
+    @apply rounded-2xl border border-border bg-surface p-5 text-sm text-muted shadow-card;
+  }
+
+  .admin-stats strong {
+    @apply mb-2 block text-4xl text-primary;
+  }
+
+  .project-form {
+    @apply mb-8 grid gap-4 rounded-2xl border border-border bg-surface p-5 shadow-card md:grid-cols-2;
+  }
+
+  .form-title {
+    @apply flex flex-wrap items-center justify-between gap-3 md:col-span-2;
+  }
+
+  .form-title h2 {
+    @apply text-xl font-semibold text-text;
+  }
+
+  .checkbox-field {
+    @apply flex items-center gap-3 rounded-lg border border-border bg-bg px-4 py-3;
+  }
+
+  .checkbox-field input {
+    @apply h-4 w-4;
+  }
+
+  .admin-table,
+  .message-list {
+    @apply grid gap-4;
+  }
+
+  .admin-row {
+    @apply grid gap-4 rounded-2xl border border-border bg-surface p-5 shadow-card md:grid-cols-[1fr_auto] md:items-center;
+  }
+
+  .admin-row strong {
+    @apply block text-text;
+  }
+
+  .admin-row span {
+    @apply mt-1 block text-sm text-muted;
+  }
+
+  .admin-actions {
+    @apply flex flex-wrap gap-2;
+  }
+
+  .btn-danger {
+    @apply inline-flex min-h-10 items-center justify-center rounded-lg border border-red-400/40 bg-red-400/10 px-3 text-sm font-semibold text-red-200 transition hover:border-red-300 hover:bg-red-400/20;
+  }
+
+  .message-card {
+    @apply grid gap-4 rounded-2xl border border-primary/40 bg-surface p-5 shadow-card;
+  }
+
+  .message-card.read {
+    @apply border-border;
+  }
+
+  .message-card strong {
+    @apply block text-text;
+  }
+
+  .message-card a,
+  .message-card time {
+    @apply mt-1 block text-sm text-muted;
+  }
+
+  .message-card p {
+    @apply text-sm leading-7 text-text;
+  }
 }
 
 .logo-frame {
