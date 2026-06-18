@@ -69,9 +69,6 @@ function Header() {
               {item.label}
             </Link>
           ))}
-          <Link className="nav-link" to="/admin/login">
-            <Lock size={14} /> Admin
-          </Link>
         </nav>
         <a className="btn-primary hidden md:inline-flex" href="/DanielHalabiCV.pdf" download>
           <Download size={16} /> Download CV
@@ -94,9 +91,6 @@ function Header() {
                 {item.label}
               </Link>
             ))}
-            <Link className="mobile-link" to="/admin/login" onClick={() => setOpen(false)}>
-              Admin
-            </Link>
           </div>
         </div>
       )}
