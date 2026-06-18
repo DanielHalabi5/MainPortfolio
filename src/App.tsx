@@ -733,7 +733,7 @@ function CvManager({ cv, onUpdated }: { cv: CvInfo | null; onUpdated: (cv: CvInf
       setStatus('CV updated successfully.');
     } catch {
       setFailed(true);
-      setStatus('CV could not be updated. Upload a PDF under 10 MB.');
+      setStatus('CV could not be updated. Upload a PDF under 25 MB.');
     } finally {
       setUploading(false);
     }
