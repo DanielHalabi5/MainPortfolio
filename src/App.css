@@ -333,7 +333,7 @@ h4,
   }
 
   .project-card {
-    @apply overflow-hidden;
+    @apply flex h-full flex-col overflow-hidden;
   }
 
   .project-card h3 {
@@ -341,7 +341,12 @@ h4,
   }
 
   .project-card p {
-    @apply mt-3 min-h-24 text-sm leading-7 text-muted;
+    @apply mt-3 text-sm leading-7 text-muted;
+    min-height: 5.25rem;
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
   }
 
   .project-image,
@@ -373,6 +378,8 @@ h4,
 
   .tag-row {
     @apply mt-5 flex flex-wrap gap-2;
+    min-height: 4.25rem;
+    align-content: flex-start;
   }
 
   .tag {
@@ -380,7 +387,7 @@ h4,
   }
 
   .card-actions {
-    @apply mt-6 flex flex-wrap items-center gap-2;
+    @apply mt-auto flex flex-wrap items-center gap-2 pt-6;
   }
 
   .section-action {
