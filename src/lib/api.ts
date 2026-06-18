@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { AdminUser, DashboardOverview, Message, MessageFormValues, Project, ProjectFilter, ProjectFormValues } from '../types';
+import type { AdminUser, CvInfo, DashboardOverview, Message, MessageFormValues, Project, ProjectFilter, ProjectFormValues } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
@@ -50,6 +50,19 @@ export async function loginAdmin(values: { email: string; password: string }) {
 export async function fetchOverview() {
   const { data } = await api.get<DashboardOverview>('/admin/overview');
   return data;
+}
+
+export async function fetchCvInfo() {
+  const { data } = await api.get<{ cv: CvInfo }>('/admin/cv');
+  return data.cv;
+}
+
+export async function updateCv(file: File) {
+  const formData = new FormData();
+  formData.append('cv', file);
+
+  const { data } = await api.put<{ cv: CvInfo }>('/admin/cv', formData);
+  return data.cv;
 }
 
 export async function fetchMessages() {

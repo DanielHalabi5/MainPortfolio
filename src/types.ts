@@ -48,6 +48,13 @@ export type DashboardOverview = {
   unreadMessages: number;
 };
 
+export type CvInfo = {
+  fileName: string;
+  url: string;
+  size: number;
+  updatedAt: string | null;
+};
+
 export type ProjectFormValues = {
   title: string;
   slug?: string;

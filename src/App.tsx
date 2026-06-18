@@ -1,14 +1,14 @@
-import { ArrowLeft, ArrowUpRight, Braces, CheckCircle2, Code2, Copy, Database, Download, ExternalLink, Gauge, Layers3, Loader2, Lock, Mail, Menu, MonitorSmartphone, Palette, PenTool, Pencil, Plus, Reply, Rocket, Send, Server, Trash2, X } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, Braces, CheckCircle2, Code2, Copy, Database, Download, ExternalLink, FileText, Gauge, Layers3, Loader2, Lock, Mail, Menu, MonitorSmartphone, Palette, PenTool, Pencil, Plus, Reply, Rocket, Send, Server, Trash2, Upload, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useEffect, useMemo, useState } from 'react';
-import type { ComponentType, ReactNode } from 'react';
+import type { ComponentType, FormEvent, ReactNode } from 'react';
 import { Link, Navigate, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import type { SubmitHandler } from 'react-hook-form';
 import { FaFigma, FaGithub, FaLinkedinIn } from 'react-icons/fa';
 import { SiMongodb, SiNodedotjs, SiReact, SiTailwindcss, SiTypescript } from 'react-icons/si';
-import { clearAdminToken, createProject, deleteMessage, deleteProject, fetchMessages, fetchOverview, fetchProject, fetchProjects, getAdminToken, loginAdmin, replyToMessage, sendMessage, updateMessageRead, updateProject } from './lib/api';
-import type { DashboardOverview, Message, MessageFormValues, Project, ProjectFilter, ProjectFormValues } from './types';
+import { clearAdminToken, createProject, deleteMessage, deleteProject, fetchCvInfo, fetchMessages, fetchOverview, fetchProject, fetchProjects, getAdminToken, loginAdmin, replyToMessage, sendMessage, updateCv, updateMessageRead, updateProject } from './lib/api';
+import type { CvInfo, DashboardOverview, Message, MessageFormValues, Project, ProjectFilter, ProjectFormValues } from './types';
 
 const filters: ProjectFilter[] = ['All', 'Development', 'UI/UX'];
 
@@ -652,14 +652,17 @@ function AdminLayout({ children }: { children: ReactNode }) {
 
 function AdminOverview() {
   const [overview, setOverview] = useState<DashboardOverview | null>(null);
+  const [cv, setCv] = useState<CvInfo | null>(null);
   const [error, setError] = useState('');
 
   useEffect(() => {
     let active = true;
 
-    fetchOverview()
-      .then((data) => {
-        if (active) setOverview(data);
+    Promise.all([fetchOverview(), fetchCvInfo()])
+      .then(([overviewData, cvData]) => {
+        if (!active) return;
+        setOverview(overviewData);
+        setCv(cvData);
       })
       .catch(() => {
         if (active) setError('Dashboard overview could not be loaded.');
@@ -683,7 +686,81 @@ function AdminOverview() {
         <span><strong>{overview?.totalMessages ?? '-'}</strong>Total messages</span>
         <span><strong>{overview?.unreadMessages ?? '-'}</strong>Unread messages</span>
       </div>
+      <CvManager cv={cv} onUpdated={setCv} />
     </AdminLayout>
+  );
+}
+
+function formatFileSize(size: number) {
+  if (!size) return 'No file found';
+  if (size < 1024 * 1024) return `${Math.round(size / 1024)} KB`;
+  return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function CvManager({ cv, onUpdated }: { cv: CvInfo | null; onUpdated: (cv: CvInfo) => void }) {
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [status, setStatus] = useState('');
+  const [failed, setFailed] = useState(false);
+  const [uploading, setUploading] = useState(false);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setStatus('');
+    setFailed(false);
+
+    if (!selectedFile) {
+      setFailed(true);
+      setStatus('Choose a PDF before updating the CV.');
+      return;
+    }
+
+    setUploading(true);
+
+    try {
+      const updatedCv = await updateCv(selectedFile);
+      onUpdated(updatedCv);
+      setSelectedFile(null);
+      event.currentTarget.reset();
+      setStatus('CV updated successfully.');
+    } catch {
+      setFailed(true);
+      setStatus('CV could not be updated. Upload a PDF under 10 MB.');
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  return (
+    <section className="admin-panel cv-manager">
+      <div className="cv-summary">
+        <span className="cv-icon"><FileText size={22} /></span>
+        <div>
+          <h2>Portfolio CV</h2>
+          <p>{cv?.updatedAt ? `Last updated ${new Date(cv.updatedAt).toLocaleString()}` : 'Upload the PDF used by the public Download CV buttons.'}</p>
+          <span>{formatFileSize(cv?.size ?? 0)}</span>
+        </div>
+      </div>
+      <form className="cv-form" onSubmit={(event) => void handleSubmit(event)}>
+        <label>
+          <span>Replace CV PDF</span>
+          <input
+            type="file"
+            accept="application/pdf"
+            onChange={(event) => setSelectedFile(event.target.files?.[0] ?? null)}
+          />
+        </label>
+        <div className="cv-actions">
+          <a className="btn-card" href={cv?.url || '/DanielHalabiCV.pdf'} target="_blank" rel="noreferrer">
+            <ExternalLink size={16} /> View current
+          </a>
+          <button className="btn-primary" type="submit" disabled={uploading}>
+            {uploading ? <Loader2 className="animate-spin" size={16} /> : <Upload size={16} />}
+            {uploading ? 'Uploading...' : 'Update CV'}
+          </button>
+        </div>
+        {status && <p className={`form-status ${failed ? 'error' : 'success'}`}>{status}</p>}
+      </form>
+    </section>
   );
 }
 
