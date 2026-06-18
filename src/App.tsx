@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowUpRight, Braces, CheckCircle2, Code2, Database, Download, ExternalLink, Gauge, Layers3, Loader2, Lock, Mail, Menu, MonitorSmartphone, Palette, PenTool, Rocket, Send, Server, Sparkles, X } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, Braces, CheckCircle2, Code2, Copy, Database, Download, ExternalLink, Gauge, Layers3, Loader2, Lock, Mail, Menu, MonitorSmartphone, Palette, PenTool, Pencil, Plus, Reply, Rocket, Send, Server, Trash2, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useEffect, useMemo, useState } from 'react';
 import type { ComponentType, ReactNode } from 'react';
@@ -126,7 +126,6 @@ function Hero() {
   return (
     <section className="hero-section" id="home">
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}>
-        <span className="eyebrow"><Sparkles size={14} /> Available for select projects</span>
         <h1 className="mt-6 max-w-3xl text-4xl font-bold leading-tight text-text sm:text-5xl lg:text-6xl">
           Building developer-focused products with <span className="text-primary">polished UI/UX.</span>
         </h1>
@@ -281,6 +280,9 @@ function ProjectVisual({ project }: { project: Project }) {
 }
 
 function ProjectCard({ project }: { project: Project }) {
+  const [expanded, setExpanded] = useState(false);
+  const isLongDescription = project.description.length > 135;
+
   return (
     <motion.article className="project-card" whileHover={{ y: -5 }} transition={{ type: 'spring', stiffness: 250, damping: 22 }}>
       <ProjectVisual project={project} />
@@ -289,7 +291,14 @@ function ProjectCard({ project }: { project: Project }) {
         {project.featured && <span className="featured-pill">Featured</span>}
       </div>
       <h3>{project.title}</h3>
-      <p>{project.description}</p>
+      <div className={`project-description ${expanded ? 'expanded' : ''}`}>
+        <p className={expanded ? 'expanded' : ''}>{project.description}</p>
+        {isLongDescription && (
+          <button className="more-info-button" type="button" onClick={() => setExpanded((current) => !current)}>
+            {expanded ? 'Show less' : 'More info'}
+          </button>
+        )}
+      </div>
       <div className="tag-row">
         {project.technologies.slice(0, 4).map((tech) => <span className="tag" key={tech}>{tech}</span>)}
       </div>
@@ -681,6 +690,7 @@ function AdminOverview() {
 function AdminProjects() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [editing, setEditing] = useState<Project | null>(null);
+  const [formOpen, setFormOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -713,39 +723,96 @@ function AdminProjects() {
     await refreshProjects();
   }
 
+  function openNewProject() {
+    setEditing(null);
+    setFormOpen(true);
+  }
+
+  function openEditProject(project: Project) {
+    setEditing(project);
+    setFormOpen(true);
+  }
+
+  function closeProjectForm() {
+    setEditing(null);
+    setFormOpen(false);
+  }
+
   return (
     <AdminLayout>
-      <div className="admin-heading">
-        <span className="eyebrow">Projects</span>
-        <h1>Manage Projects</h1>
-        <p>Add, edit, delete, and update portfolio project images.</p>
+      <div className="admin-heading admin-heading-row">
+        <div>
+          <span className="eyebrow">Projects</span>
+          <h1>Manage Projects</h1>
+          <p>Add, edit, delete, and update portfolio project images.</p>
+        </div>
+        <button className="btn-primary" type="button" onClick={openNewProject}>
+          <Plus size={16} /> Add Project
+        </button>
       </div>
-      <ProjectForm
-        key={editing?._id || 'new'}
-        editing={editing}
-        onCancel={() => setEditing(null)}
-        onSaved={async () => {
-          setEditing(null);
-          await refreshProjects();
-        }}
-      />
+      {formOpen && (
+        <ProjectEditorModal editing={editing} onClose={closeProjectForm}>
+          <ProjectForm
+            key={editing?._id || 'new'}
+            editing={editing}
+            onCancel={closeProjectForm}
+            onSaved={async () => {
+              closeProjectForm();
+              await refreshProjects();
+            }}
+          />
+        </ProjectEditorModal>
+      )}
       {loading && <StateMessage icon={Loader2} title="Loading projects" message="Fetching dashboard projects..." spinning />}
       {error && <StateMessage title="Projects unavailable" message={error} />}
-      <div className="admin-table">
+      <div className="admin-project-grid">
         {projects.map((project) => (
-          <div className="admin-row" key={project._id}>
-            <div>
-              <strong>{project.title}</strong>
-              <span>{project.category} • {project.technologies.join(', ') || 'No technologies'}</span>
+          <article className="admin-project-card" key={project._id}>
+            <ProjectVisual project={project} />
+            <div className="admin-project-body">
+              <div className="admin-project-topline">
+                <span className="category-pill">{project.category}</span>
+                {project.featured && <span className="featured-pill">Featured</span>}
+              </div>
+              <h2>{project.title}</h2>
+              <p>{project.description}</p>
+              <div className="tag-row">
+                {project.technologies.slice(0, 5).map((tech) => <span className="tag" key={tech}>{tech}</span>)}
+                {project.technologies.length > 5 && <span className="tag">+{project.technologies.length - 5}</span>}
+              </div>
             </div>
             <div className="admin-actions">
-              <button className="btn-card" type="button" onClick={() => setEditing(project)}>Edit</button>
-              <button className="btn-danger" type="button" onClick={() => void handleDelete(project._id)}>Delete</button>
+              <button className="btn-card" type="button" onClick={() => openEditProject(project)}>
+                <Pencil size={15} /> Edit
+              </button>
+              <button className="btn-danger" type="button" onClick={() => void handleDelete(project._id)}>
+                <Trash2 size={15} /> Delete
+              </button>
             </div>
-          </div>
+          </article>
         ))}
+        {!loading && !error && projects.length === 0 && <StateMessage title="No projects yet" message="Add your first portfolio project from the button above." />}
       </div>
     </AdminLayout>
+  );
+}
+
+function ProjectEditorModal({ editing, onClose, children }: { editing: Project | null; onClose: () => void; children: ReactNode }) {
+  return (
+    <div className="admin-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="project-editor-title">
+      <div className="admin-modal">
+        <div className="admin-modal-head">
+          <div>
+            <span className="eyebrow">{editing ? 'Edit' : 'New'}</span>
+            <h2 id="project-editor-title">{editing ? 'Edit Project Details' : 'Add Project Details'}</h2>
+          </div>
+          <button className="icon-button" type="button" aria-label="Close project form" onClick={onClose}>
+            <X size={18} />
+          </button>
+        </div>
+        {children}
+      </div>
+    </div>
   );
 }
 
@@ -785,7 +852,7 @@ function ProjectForm({ editing, onSaved, onCancel }: { editing: Project | null; 
   return (
     <form className="project-form" onSubmit={handleSubmit(onSubmit)}>
       <div className="form-title">
-        <h2>{editing ? 'Edit Project' : 'Add Project'}</h2>
+        <h2>Project details</h2>
         {editing && <button className="btn-secondary" type="button" onClick={onCancel}>Cancel Edit</button>}
       </div>
       <label>
@@ -848,6 +915,9 @@ function ProjectForm({ editing, onSaved, onCancel }: { editing: Project | null; 
 
 function AdminMessages() {
   const [messages, setMessages] = useState<Message[]>([]);
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [replyText, setReplyText] = useState('');
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -880,6 +950,18 @@ function AdminMessages() {
     setMessages((current) => current.filter((item) => item._id !== id));
   }
 
+  function startReply(message: Message) {
+    setReplyingTo((current) => current === message._id ? null : message._id);
+    setReplyText('');
+    setCopiedId(null);
+  }
+
+  async function copyReply(message: Message) {
+    const draft = buildReplyDraft(message, replyText);
+    await navigator.clipboard.writeText(`To: ${message.email}\nSubject: ${draft.subject}\n\n${draft.body}`);
+    setCopiedId(message._id);
+  }
+
   return (
     <AdminLayout>
       <div className="admin-heading">
@@ -899,16 +981,120 @@ function AdminMessages() {
             </div>
             <p>{message.message}</p>
             <div className="admin-actions">
+              <button className="btn-card" type="button" onClick={() => startReply(message)}>
+                <Reply size={15} /> Reply
+              </button>
               <button className="btn-card" type="button" onClick={() => void toggleRead(message)}>
                 Mark {message.read ? 'Unread' : 'Read'}
               </button>
-              <button className="btn-danger" type="button" onClick={() => void removeMessage(message._id)}>Delete</button>
+              <button className="btn-danger" type="button" onClick={() => void removeMessage(message._id)}>
+                <Trash2 size={15} /> Delete
+              </button>
             </div>
+            {replyingTo === message._id && (
+              <MessageReplyComposer
+                copied={copiedId === message._id}
+                message={message}
+                replyText={replyText}
+                onCopy={() => void copyReply(message)}
+                onReplyTextChange={setReplyText}
+              />
+            )}
           </article>
         ))}
         {!loading && !error && messages.length === 0 && <StateMessage title="No messages yet" message="New contact form messages will appear here." />}
       </div>
     </AdminLayout>
+  );
+}
+
+function buildReplyDraft(message: Message, replyText: string) {
+  const firstName = message.name.trim().split(/\s+/)[0] || message.name;
+  const response = replyText.trim() || 'Thanks for reaching out. I reviewed your message and would be happy to continue the conversation.';
+  const sentAt = new Date(message.createdAt).toLocaleString();
+
+  return {
+    subject: `Re: Portfolio message from ${message.name}`,
+    body: [
+      `Hi ${firstName},`,
+      '',
+      response,
+      '',
+      'Best regards,',
+      'Daniel Halabi',
+      '',
+      '---',
+      `Original message from ${message.name} <${message.email}>`,
+      `Received: ${sentAt}`,
+      '',
+      message.message
+    ].join('\n')
+  };
+}
+
+function MessageReplyComposer({
+  copied,
+  message,
+  replyText,
+  onCopy,
+  onReplyTextChange
+}: {
+  copied: boolean;
+  message: Message;
+  replyText: string;
+  onCopy: () => void;
+  onReplyTextChange: (value: string) => void;
+}) {
+  const draft = buildReplyDraft(message, replyText);
+  const mailtoHref = `mailto:${message.email}?subject=${encodeURIComponent(draft.subject)}&body=${encodeURIComponent(draft.body)}`;
+  const gmailHref = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(message.email)}&su=${encodeURIComponent(draft.subject)}&body=${encodeURIComponent(draft.body)}`;
+
+  return (
+    <div className="message-reply">
+      <label>
+        <span>Your reply</span>
+        <textarea
+          rows={4}
+          value={replyText}
+          onChange={(event) => onReplyTextChange(event.target.value)}
+          placeholder="Write the short reply. The dashboard will format the email around it."
+        />
+      </label>
+      <div className="email-preview">
+        <div className="email-field">
+          <span>To</span>
+          <strong>{message.email}</strong>
+        </div>
+        <div className="email-field">
+          <span>Subject</span>
+          <strong>{draft.subject}</strong>
+        </div>
+        <div className="email-body-preview">
+          <span>Body</span>
+          <pre>{draft.body}</pre>
+        </div>
+      </div>
+      <div className="reply-actions">
+        <a className="btn-primary reply-action-primary" href={gmailHref} target="_blank" rel="noreferrer">
+          <span className="reply-action-label">
+            <ExternalLink size={15} />
+            <span>Gmail</span>
+          </span>
+        </a>
+        <a className="btn-card reply-action" href={mailtoHref}>
+          <span className="reply-action-label">
+            <Mail size={15} />
+            <span>Mail app</span>
+          </span>
+        </a>
+        <button className="btn-card reply-action" type="button" onClick={onCopy}>
+          <span className="reply-action-label">
+            <Copy size={15} />
+            <span>{copied ? 'Copied' : 'Copy'}</span>
+          </span>
+        </button>
+      </div>
+    </div>
   );
 }
 

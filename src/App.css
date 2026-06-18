@@ -338,15 +338,38 @@ h4,
 
   .project-card h3 {
     @apply mt-4 text-xl font-bold text-text;
+    min-height: 3.5rem;
+    line-height: 1.75rem;
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
   }
 
-  .project-card p {
-    @apply mt-3 text-sm leading-7 text-muted;
+  .project-description {
+    @apply mt-3;
     min-height: 5.25rem;
+  }
+
+  .project-description.expanded {
+    min-height: 0;
+  }
+
+  .project-description p {
+    @apply text-sm leading-7 text-muted;
     display: -webkit-box;
     overflow: hidden;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
+  }
+
+  .project-description p.expanded {
+    display: block;
+    overflow: visible;
+  }
+
+  .more-info-button {
+    @apply mt-2 w-fit text-sm font-bold text-primary transition duration-200 hover:text-primaryHover;
   }
 
   .project-image,
@@ -377,9 +400,7 @@ h4,
   }
 
   .tag-row {
-    @apply mt-5 flex flex-wrap gap-2;
-    min-height: 4.25rem;
-    align-content: flex-start;
+    @apply mt-3 flex flex-wrap gap-2;
   }
 
   .tag {
@@ -435,7 +456,8 @@ h4,
   .admin-login-card input,
   .project-form input,
   .project-form textarea,
-  .project-form select {
+  .project-form select,
+  .message-reply textarea {
     @apply w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-text outline-none transition duration-200 placeholder:text-muted focus:border-primary focus:ring-4 focus:ring-primary/10;
   }
 
@@ -542,6 +564,10 @@ h4,
     @apply mb-8;
   }
 
+  .admin-heading-row {
+    @apply flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between;
+  }
+
   .admin-stats {
     @apply grid gap-4 sm:grid-cols-3;
   }
@@ -555,7 +581,7 @@ h4,
   }
 
   .project-form {
-    @apply mb-8 grid gap-4 rounded-lg border border-border bg-surface p-5 shadow-card md:grid-cols-2;
+    @apply grid gap-4 md:grid-cols-2;
   }
 
   .form-title {
@@ -579,6 +605,59 @@ h4,
     @apply grid gap-4;
   }
 
+  .admin-modal-backdrop {
+    @apply fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-slate-950/45 px-4 py-8 backdrop-blur-sm;
+  }
+
+  .admin-modal {
+    @apply w-full max-w-4xl rounded-lg border border-border bg-surface p-5 shadow-[0_28px_70px_rgba(15,23,42,0.22)] md:p-6;
+  }
+
+  .admin-modal-head {
+    @apply mb-5 flex items-start justify-between gap-4 border-b border-border pb-5;
+  }
+
+  .admin-modal-head h2 {
+    @apply mt-3 text-2xl font-bold text-text;
+  }
+
+  .admin-project-grid {
+    @apply grid gap-5 xl:grid-cols-2;
+  }
+
+  .admin-project-card {
+    @apply grid gap-4 rounded-lg border border-border bg-surface p-4 shadow-card transition duration-200 hover:-translate-y-1 hover:shadow-cardHover md:grid-cols-[220px_1fr] md:items-start;
+  }
+
+  .admin-project-card .project-image,
+  .admin-project-card .project-placeholder {
+    @apply md:h-full md:min-h-40;
+  }
+
+  .admin-project-body {
+    @apply min-w-0;
+  }
+
+  .admin-project-topline {
+    @apply mb-3 flex flex-wrap items-center gap-2;
+  }
+
+  .admin-project-card h2 {
+    @apply text-lg font-bold leading-7 text-text;
+  }
+
+  .admin-project-card p {
+    @apply mt-2 text-sm leading-6 text-muted;
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+
+  .admin-project-card .admin-actions {
+    @apply md:col-span-2 md:border-t md:border-border md:pt-4;
+  }
+
   .admin-row {
     @apply grid gap-4 rounded-lg border border-border bg-surface p-5 shadow-card md:grid-cols-[1fr_auto] md:items-center;
   }
@@ -596,7 +675,7 @@ h4,
   }
 
   .btn-danger {
-    @apply inline-flex min-h-10 items-center justify-center rounded-lg border border-red-200 bg-red-50 px-3 text-sm font-semibold text-red-600 transition duration-200 hover:scale-[1.02] hover:border-red-300 hover:bg-red-100;
+    @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 text-sm font-semibold text-red-600 transition duration-200 hover:scale-[1.02] hover:border-red-300 hover:bg-red-100;
   }
 
   .message-card {
@@ -618,6 +697,62 @@ h4,
 
   .message-card p {
     @apply text-sm leading-7 text-text;
+  }
+
+  .message-reply {
+    @apply grid gap-4 rounded-lg border border-border bg-surfaceSoft p-4;
+  }
+
+  .message-reply label {
+    @apply grid gap-2;
+  }
+
+  .message-reply label span,
+  .email-field span,
+  .email-body-preview span {
+    @apply text-sm font-semibold text-text;
+  }
+
+  .email-preview {
+    @apply grid overflow-hidden rounded-lg border border-border bg-surface;
+  }
+
+  .email-field {
+    @apply grid gap-1 border-b border-border px-4 py-3 sm:grid-cols-[90px_1fr] sm:items-center sm:gap-4;
+  }
+
+  .email-field strong {
+    @apply min-w-0 break-words text-sm text-primary;
+  }
+
+  .email-body-preview {
+    @apply grid gap-3 p-4;
+  }
+
+  .email-body-preview pre {
+    @apply max-h-72 overflow-auto whitespace-pre-wrap rounded-lg bg-surfaceSoft p-4 text-sm leading-6 text-text;
+    font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  }
+
+  .reply-actions {
+    @apply grid gap-2 sm:grid-cols-3;
+  }
+
+  .reply-action,
+  .reply-action-primary {
+    @apply flex w-full min-w-0 items-center content-center justify-center px-3;
+  }
+
+  .reply-action-label {
+    @apply inline-flex min-w-0 flex-row items-center justify-center gap-2 whitespace-nowrap leading-none;
+  }
+
+  .reply-action-label svg {
+    @apply shrink-0;
+  }
+
+  .reply-action-label span {
+    @apply min-w-0 leading-none;
   }
 }
 
