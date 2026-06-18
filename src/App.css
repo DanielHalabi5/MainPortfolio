@@ -1,23 +1,26 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --color-bg: #0f172a;
-  --color-surface: #111827;
-  --color-surfaceSoft: #172033;
-  --color-primary: #38bdf8;
-  --color-secondary: #a78bfa;
-  --color-text: #f8fafc;
-  --color-muted: #94a3b8;
-  --color-border: #1e293b;
-  --color-success: #22c55e;
-  --shadow-card: 0 20px 60px rgba(2, 6, 23, 0.38);
-  --shadow-glow: 0 20px 45px rgba(56, 189, 248, 0.18);
+  --color-bg: #ffffff;
+  --color-surface: #ffffff;
+  --color-surfaceSoft: #f8fafc;
+  --color-primary: #6d5df6;
+  --color-primaryHover: #5848e8;
+  --color-secondary: #f4f1ff;
+  --color-text: #0f172a;
+  --color-muted: #64748b;
+  --color-border: #e5e7eb;
+  --color-success: #16a34a;
+  --shadow-card: 0 14px 34px rgba(15, 23, 42, 0.08);
+  --shadow-cardHover: 0 22px 50px rgba(15, 23, 42, 0.13);
+  --shadow-glow: 0 14px 28px rgba(109, 93, 246, 0.22);
 }
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
   font-family: Inter, ui-sans-serif, system-ui, sans-serif;
-  background: #0f172a;
+  background: #ffffff;
 }
 
 * {
@@ -31,10 +34,7 @@ html {
 body {
   margin: 0;
   min-width: 320px;
-  background:
-    radial-gradient(circle at 18% 12%, rgba(56, 189, 248, 0.16), transparent 28rem),
-    radial-gradient(circle at 82% 8%, rgba(167, 139, 250, 0.14), transparent 28rem),
-    #0f172a;
+  background: #ffffff;
 }
 
 a {
@@ -44,7 +44,8 @@ a {
 
 button,
 input,
-textarea {
+textarea,
+select {
   font: inherit;
 }
 
@@ -58,7 +59,8 @@ h2,
 h3,
 h4,
 .brand-name {
-  font-family: Poppins, Inter, ui-sans-serif, system-ui, sans-serif;
+  font-family: Sora, Inter, ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: 0;
 }
 
 @layer components {
@@ -67,91 +69,142 @@ h4,
   }
 
   .nav-link {
-    @apply inline-flex items-center gap-2 text-muted transition hover:text-primary;
+    @apply inline-flex items-center gap-2 text-muted transition duration-200 hover:text-primary;
   }
 
   .mobile-link {
-    @apply rounded-lg border border-border bg-bg/70 px-4 py-3 text-sm text-text transition hover:border-primary;
+    @apply rounded-lg border border-border bg-surface px-4 py-3 text-sm font-semibold text-text transition duration-200 hover:border-primary hover:bg-secondary hover:text-primary;
   }
 
   .btn-primary {
-    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-primary px-5 text-sm font-semibold text-bg shadow-glow transition hover:-translate-y-0.5 hover:bg-secondary hover:text-text focus:outline-none focus:ring-2 focus:ring-primary;
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-primary px-5 text-sm font-semibold text-white shadow-glow transition duration-200 hover:scale-[1.02] hover:bg-primaryHover hover:brightness-105 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-bg;
+  }
+
+  .btn-primary,
+  .btn-primary:hover,
+  .btn-primary:visited,
+  .btn-primary:focus,
+  .btn-primary:active,
+  .btn-primary *,
+  .btn-primary svg {
+    color: #ffffff;
   }
 
   .btn-secondary {
-    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-border bg-surface px-5 text-sm font-semibold text-text transition hover:-translate-y-0.5 hover:border-primary hover:bg-primary/10 focus:outline-none focus:ring-2 focus:ring-primary;
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-border bg-surface px-5 text-sm font-semibold text-text transition duration-200 hover:scale-[1.02] hover:border-primary hover:bg-secondary hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-bg;
   }
 
   .btn-card {
-    @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-border bg-bg/50 px-3 text-sm font-semibold text-text transition hover:border-primary hover:text-primary;
+    @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-border bg-surface px-3 text-sm font-semibold text-text transition duration-200 hover:scale-[1.02] hover:border-primary hover:bg-secondary hover:text-primary;
   }
 
   .icon-button,
   .icon-link {
-    @apply inline-grid h-10 w-10 place-items-center rounded-lg border border-border bg-surface text-text transition hover:border-primary hover:text-primary;
+    @apply inline-grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-border bg-surface text-text transition duration-200 hover:scale-[1.04] hover:border-primary hover:bg-secondary hover:text-primary;
   }
 
   .eyebrow {
-    @apply inline-flex w-fit items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold uppercase text-primary;
+    @apply inline-flex w-fit items-center gap-2 rounded-full border border-primary/20 bg-secondary px-3 py-1 text-xs font-bold uppercase text-primary;
   }
 
   .hero-section {
-    @apply mx-auto grid min-h-[calc(100vh-81px)] max-w-7xl items-center gap-12 px-5 py-14 md:grid-cols-[1fr_0.9fr] md:px-8 md:py-20;
+    @apply mx-auto grid min-h-[calc(100vh-81px)] max-w-7xl items-center gap-14 px-5 py-16 md:grid-cols-[1fr_0.92fr] md:px-8 md:py-24;
   }
 
-  .hero-panel {
-    @apply rounded-2xl border border-border bg-surface/90 p-5 shadow-card;
-    background-image: linear-gradient(145deg, rgba(17, 24, 39, 0.96), rgba(15, 23, 42, 0.96));
+  .hero-device {
+    @apply relative mx-auto w-full max-w-xl;
   }
 
-  .panel-header {
-    @apply mb-5 flex gap-2;
+  .device-window {
+    @apply overflow-hidden rounded-lg border border-border bg-surface shadow-card;
   }
 
-  .panel-header span {
-    @apply h-3 w-3 rounded-full bg-muted/40;
+  .device-bar {
+    @apply flex items-center gap-2 border-b border-border bg-surfaceSoft px-4 py-3;
   }
 
-  .panel-header span:first-child {
+  .device-bar span {
+    @apply h-2.5 w-2.5 rounded-full bg-border;
+  }
+
+  .device-bar span:first-child {
     @apply bg-primary;
   }
 
-  .panel-grid {
-    @apply grid grid-cols-2 gap-3;
+  .dashboard-grid {
+    @apply grid min-h-[380px] grid-cols-[64px_1fr] bg-surface;
   }
 
-  .panel-grid div,
-  .code-card {
-    @apply rounded-xl border border-border bg-bg/60 p-4;
+  .dashboard-sidebar {
+    @apply flex flex-col items-center gap-4 border-r border-border bg-surfaceSoft py-6;
   }
 
-  .panel-grid small {
-    @apply block text-xs uppercase text-muted;
+  .sidebar-dot {
+    @apply h-9 w-9 rounded-lg border border-border bg-surface;
   }
 
-  .panel-grid strong {
-    @apply mt-2 block text-lg text-text;
+  .sidebar-dot.active {
+    @apply border-primary bg-primary;
   }
 
-  .code-card {
-    @apply mt-4 grid gap-2 font-mono text-xs text-muted sm:text-sm;
+  .dashboard-main {
+    @apply grid content-start gap-5 p-5 sm:p-7;
   }
 
-  .code-card span:nth-child(2),
-  .code-card span:nth-child(3) {
+  .dashboard-topline {
+    @apply flex items-start justify-between gap-4;
+  }
+
+  .dashboard-topline small {
+    @apply block text-xs font-bold uppercase text-muted;
+  }
+
+  .dashboard-topline strong {
+    @apply mt-1 block text-xl text-text;
+  }
+
+  .dashboard-topline > span {
+    @apply rounded-full border border-primary/20 bg-secondary px-3 py-1 text-xs font-bold text-primary;
+  }
+
+  .dashboard-cards {
+    @apply grid gap-3 sm:grid-cols-3;
+  }
+
+  .dashboard-cards div {
+    @apply rounded-lg border border-border bg-surface p-4 shadow-[0_8px_20px_rgba(15,23,42,0.05)];
+  }
+
+  .dashboard-cards svg {
     @apply text-primary;
   }
 
-  .code-card span:nth-child(4) {
-    @apply text-secondary;
+  .dashboard-cards strong {
+    @apply mt-4 block text-lg text-text;
+  }
+
+  .dashboard-cards span {
+    @apply mt-1 block text-xs text-muted;
+  }
+
+  .dashboard-chart {
+    @apply flex h-36 items-end gap-3 rounded-lg border border-border bg-secondary p-5;
+  }
+
+  .dashboard-chart span {
+    @apply flex-1 rounded-t-lg bg-primary;
+  }
+
+  .device-base {
+    @apply mx-auto h-4 w-2/3 rounded-b-lg border-x border-b border-border bg-surfaceSoft shadow-card;
   }
 
   .section {
-    @apply mx-auto max-w-7xl border-t border-border/70 px-5 py-16 md:px-8 md:py-20;
+    @apply mx-auto max-w-7xl border-t border-border px-5 py-16 md:px-8 md:py-24;
   }
 
   .section-heading {
-    @apply mb-9 max-w-2xl;
+    @apply mb-10 max-w-2xl;
   }
 
   .section-heading.centered {
@@ -169,19 +222,39 @@ h4,
 
   .section-heading p,
   .contact-section p {
-    @apply mt-3 text-sm leading-7 text-muted;
+    @apply mt-4 text-base leading-8 text-muted;
   }
 
   .about-grid {
-    @apply grid gap-8 md:grid-cols-[1fr_0.9fr];
+    @apply grid gap-10 md:grid-cols-[1fr_0.95fr] md:items-start;
   }
 
-  .about-grid > p {
-    @apply text-base leading-8 text-muted;
+  .about-copy {
+    @apply rounded-lg border border-border bg-surface p-6 shadow-card md:p-8;
+  }
+
+  .about-copy h2 {
+    @apply mt-4 text-3xl font-bold leading-tight text-text md:text-4xl;
+  }
+
+  .about-copy p {
+    @apply mt-5 text-lg leading-9 text-muted;
+  }
+
+  .about-points {
+    @apply mt-7 grid gap-3;
+  }
+
+  .about-points span {
+    @apply flex items-start gap-3 rounded-lg border border-border bg-surfaceSoft px-4 py-3 text-sm font-semibold leading-6 text-text;
+  }
+
+  .about-points svg {
+    @apply mt-0.5 shrink-0 text-primary;
   }
 
   .metric-grid {
-    @apply grid gap-3 sm:grid-cols-3 md:grid-cols-1;
+    @apply grid gap-4 sm:grid-cols-3 md:grid-cols-1;
   }
 
   .metric-grid span,
@@ -189,39 +262,70 @@ h4,
   .project-card,
   .state-message,
   .contact-form {
-    @apply rounded-2xl border border-border bg-surface p-5 shadow-card;
+    @apply rounded-lg border border-border bg-surface p-5 shadow-card transition duration-200;
+  }
+
+  .metric-grid span:hover,
+  .skill-card:hover,
+  .project-card:hover,
+  .contact-form:hover {
+    @apply -translate-y-1 shadow-cardHover;
+  }
+
+  .metric-grid svg {
+    @apply mb-5 text-primary;
   }
 
   .metric-grid strong {
-    @apply block text-2xl text-primary;
+    @apply block text-3xl text-text;
   }
 
   .metric-grid span {
-    @apply text-sm text-muted;
+    @apply text-sm font-medium text-muted;
   }
 
   .skill-grid {
-    @apply grid gap-4 sm:grid-cols-2 lg:grid-cols-3;
+    @apply grid gap-5 lg:grid-cols-3;
   }
 
   .skill-card {
-    @apply flex min-h-24 items-center gap-4 text-sm font-semibold text-text transition hover:-translate-y-1 hover:border-primary;
+    @apply min-h-64;
   }
 
-  .skill-card svg {
+  .skill-card-head {
+    @apply mb-6 flex items-center gap-3;
+  }
+
+  .skill-card-head > span {
+    @apply grid h-11 w-11 place-items-center rounded-lg bg-secondary text-primary;
+  }
+
+  .skill-card h3 {
+    @apply text-xl font-bold text-text;
+  }
+
+  .skill-list {
+    @apply grid gap-3;
+  }
+
+  .skill-list span {
+    @apply flex items-center gap-3 rounded-lg border border-border bg-surfaceSoft px-4 py-3 text-sm font-semibold text-text;
+  }
+
+  .skill-list svg {
     @apply text-primary;
   }
 
   .filter-tabs {
-    @apply mx-auto mb-9 flex w-fit flex-wrap justify-center gap-2 rounded-xl border border-border bg-surface p-1;
+    @apply mx-auto mb-10 flex w-fit flex-wrap justify-center gap-2 rounded-lg border border-border bg-surface p-1 shadow-[0_8px_20px_rgba(15,23,42,0.05)];
   }
 
   .filter-tabs button {
-    @apply rounded-lg px-4 py-2 text-sm font-semibold text-muted transition hover:text-text;
+    @apply rounded-lg px-4 py-2 text-sm font-semibold text-muted transition duration-200 hover:bg-secondary hover:text-primary;
   }
 
   .filter-tabs button.active {
-    @apply bg-primary text-bg;
+    @apply bg-primary text-white shadow-glow;
   }
 
   .projects-grid {
@@ -229,54 +333,58 @@ h4,
   }
 
   .project-card {
-    @apply overflow-hidden transition hover:border-primary;
+    @apply overflow-hidden;
   }
 
   .project-card h3 {
-    @apply mt-4 text-xl font-semibold text-text;
+    @apply mt-4 text-xl font-bold text-text;
   }
 
   .project-card p {
-    @apply mt-2 min-h-20 text-sm leading-6 text-muted;
+    @apply mt-3 min-h-24 text-sm leading-7 text-muted;
   }
 
   .project-image,
   .project-placeholder {
-    @apply h-48 w-full rounded-xl border border-border object-cover;
+    @apply aspect-video h-auto w-full rounded-lg border border-border object-cover;
   }
 
   .project-placeholder {
-    @apply grid place-items-center bg-bg/70 text-primary;
+    @apply grid place-items-center bg-secondary text-primary;
   }
 
   .project-placeholder span {
-    @apply mt-3 block text-sm font-semibold text-muted;
+    @apply mt-3 block text-sm font-bold text-primary;
   }
 
   .category-pill,
   .featured-pill,
   .tag {
-    @apply rounded-full border px-3 py-1 text-xs font-semibold;
+    @apply rounded-full border px-3 py-1 text-xs font-bold;
   }
 
   .category-pill {
-    @apply border-primary/40 bg-primary/10 text-primary;
+    @apply border-primary/20 bg-secondary text-primary;
   }
 
   .featured-pill {
-    @apply border-secondary/40 bg-secondary/10 text-secondary;
+    @apply border-slate-200 bg-slate-50 text-slate-600;
   }
 
   .tag-row {
-    @apply mt-4 flex flex-wrap gap-2;
+    @apply mt-5 flex flex-wrap gap-2;
   }
 
   .tag {
-    @apply border-border bg-bg/60 text-muted;
+    @apply border-border bg-surfaceSoft text-muted;
   }
 
   .card-actions {
-    @apply mt-5 flex items-center gap-2;
+    @apply mt-6 flex flex-wrap items-center gap-2;
+  }
+
+  .section-action {
+    @apply mt-10 flex justify-center;
   }
 
   .state-message {
@@ -292,15 +400,15 @@ h4,
   }
 
   .contact-section {
-    @apply grid gap-10 md:grid-cols-[0.9fr_1.1fr];
+    @apply grid gap-10 md:grid-cols-[0.9fr_1.1fr] md:items-start;
   }
 
   .social-row {
-    @apply mt-7 flex gap-3;
+    @apply mt-8 flex gap-3;
   }
 
   .social-row a {
-    @apply grid h-10 w-10 place-items-center rounded-lg border border-border bg-surface text-text transition hover:border-primary hover:text-primary;
+    @apply grid h-11 w-11 place-items-center rounded-lg border border-border bg-surface text-text shadow-[0_8px_20px_rgba(15,23,42,0.05)] transition duration-200 hover:-translate-y-1 hover:border-primary hover:bg-secondary hover:text-primary hover:shadow-card;
   }
 
   .contact-form {
@@ -316,12 +424,18 @@ h4,
   }
 
   .contact-form input,
-  .contact-form textarea {
-    @apply w-full rounded-lg border border-border bg-bg px-4 py-3 text-sm text-text outline-none transition placeholder:text-muted focus:border-primary;
+  .contact-form textarea,
+  .admin-login-card input,
+  .project-form input,
+  .project-form textarea,
+  .project-form select {
+    @apply w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-text outline-none transition duration-200 placeholder:text-muted focus:border-primary focus:ring-4 focus:ring-primary/10;
   }
 
-  .contact-form small {
-    @apply text-xs text-red-300;
+  .contact-form small,
+  .admin-login-card small,
+  .project-form small {
+    @apply text-xs text-red-500;
   }
 
   .form-status {
@@ -333,7 +447,7 @@ h4,
   }
 
   .form-status.error {
-    @apply text-red-300;
+    @apply text-red-500;
   }
 
   .detail-page {
@@ -341,12 +455,12 @@ h4,
   }
 
   .detail-layout {
-    @apply mt-8 grid gap-8 rounded-2xl border border-border bg-surface p-5 shadow-card md:grid-cols-[0.9fr_1fr] md:p-7;
+    @apply mt-8 grid gap-8 rounded-lg border border-border bg-surface p-5 shadow-card md:grid-cols-[0.9fr_1fr] md:p-7;
   }
 
   .detail-layout .project-image,
   .detail-layout .project-placeholder {
-    @apply h-full min-h-80;
+    @apply min-h-80;
   }
 
   .detail-layout h1 {
@@ -358,11 +472,11 @@ h4,
   }
 
   .admin-auth {
-    @apply grid min-h-screen place-items-center px-5 py-10;
+    @apply grid min-h-screen place-items-center bg-bg px-5 py-10;
   }
 
   .admin-login-card {
-    @apply grid w-full max-w-md gap-5 rounded-2xl border border-border bg-surface p-6 shadow-card;
+    @apply grid w-full max-w-md gap-5 rounded-lg border border-border bg-surface p-6 shadow-card;
   }
 
   .admin-login-card h1,
@@ -385,18 +499,6 @@ h4,
     @apply text-sm font-semibold text-text;
   }
 
-  .admin-login-card input,
-  .project-form input,
-  .project-form textarea,
-  .project-form select {
-    @apply w-full rounded-lg border border-border bg-bg px-4 py-3 text-sm text-text outline-none transition placeholder:text-muted focus:border-primary;
-  }
-
-  .admin-login-card small,
-  .project-form small {
-    @apply text-xs text-red-300;
-  }
-
   .admin-shell {
     @apply min-h-screen bg-bg md:grid md:grid-cols-[280px_1fr];
   }
@@ -410,11 +512,19 @@ h4,
   }
 
   .admin-sidebar nav a {
-    @apply rounded-lg px-4 py-3 text-sm font-semibold text-muted transition hover:bg-primary/10 hover:text-primary;
+    @apply rounded-lg px-4 py-3 text-sm font-semibold text-muted transition duration-200 hover:bg-secondary hover:text-primary;
   }
 
   .admin-sidebar nav a.active {
-    @apply bg-primary text-bg;
+    @apply bg-primary text-white;
+  }
+
+  .admin-sidebar nav a.active,
+  .admin-sidebar nav a.active:hover,
+  .admin-sidebar nav a.active:visited,
+  .admin-sidebar nav a.active *,
+  .admin-sidebar nav a.active svg {
+    color: #ffffff;
   }
 
   .admin-main {
@@ -430,7 +540,7 @@ h4,
   }
 
   .admin-stats span {
-    @apply rounded-2xl border border-border bg-surface p-5 text-sm text-muted shadow-card;
+    @apply rounded-lg border border-border bg-surface p-5 text-sm text-muted shadow-card;
   }
 
   .admin-stats strong {
@@ -438,7 +548,7 @@ h4,
   }
 
   .project-form {
-    @apply mb-8 grid gap-4 rounded-2xl border border-border bg-surface p-5 shadow-card md:grid-cols-2;
+    @apply mb-8 grid gap-4 rounded-lg border border-border bg-surface p-5 shadow-card md:grid-cols-2;
   }
 
   .form-title {
@@ -446,11 +556,11 @@ h4,
   }
 
   .form-title h2 {
-    @apply text-xl font-semibold text-text;
+    @apply text-xl font-bold text-text;
   }
 
   .checkbox-field {
-    @apply flex items-center gap-3 rounded-lg border border-border bg-bg px-4 py-3;
+    @apply flex items-center gap-3 rounded-lg border border-border bg-surfaceSoft px-4 py-3;
   }
 
   .checkbox-field input {
@@ -463,7 +573,7 @@ h4,
   }
 
   .admin-row {
-    @apply grid gap-4 rounded-2xl border border-border bg-surface p-5 shadow-card md:grid-cols-[1fr_auto] md:items-center;
+    @apply grid gap-4 rounded-lg border border-border bg-surface p-5 shadow-card md:grid-cols-[1fr_auto] md:items-center;
   }
 
   .admin-row strong {
@@ -479,11 +589,11 @@ h4,
   }
 
   .btn-danger {
-    @apply inline-flex min-h-10 items-center justify-center rounded-lg border border-red-400/40 bg-red-400/10 px-3 text-sm font-semibold text-red-200 transition hover:border-red-300 hover:bg-red-400/20;
+    @apply inline-flex min-h-10 items-center justify-center rounded-lg border border-red-200 bg-red-50 px-3 text-sm font-semibold text-red-600 transition duration-200 hover:scale-[1.02] hover:border-red-300 hover:bg-red-100;
   }
 
   .message-card {
-    @apply grid gap-4 rounded-2xl border border-primary/40 bg-surface p-5 shadow-card;
+    @apply grid gap-4 rounded-lg border border-primary/30 bg-surface p-5 shadow-card;
   }
 
   .message-card.read {
@@ -510,10 +620,10 @@ h4,
   height: 48px;
   place-items: center;
   overflow: hidden;
-  border: 1px solid rgba(56, 189, 248, 0.3);
-  border-radius: 50%;
-  background: #111827;
-  box-shadow: 0 0 24px rgba(56, 189, 248, 0.14);
+  border: 1px solid rgba(109, 93, 246, 0.22);
+  border-radius: 8px;
+  background: #f4f1ff;
+  box-shadow: 0 10px 24px rgba(109, 93, 246, 0.12);
 }
 
 .logo-frame img {
@@ -524,10 +634,9 @@ h4,
 
 .brand-name {
   display: block;
-  color: #f8fafc;
+  color: #0f172a;
   font-size: 0.92rem;
-  font-weight: 700;
-  letter-spacing: 0;
+  font-weight: 800;
   text-transform: uppercase;
 }
 
@@ -535,4 +644,31 @@ h4,
   .brand-name + span {
     display: none;
   }
+
+  .dashboard-grid {
+    grid-template-columns: 48px 1fr;
+  }
+
+  .dashboard-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+.btn-primary,
+.btn-primary:link,
+.btn-primary:visited,
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active,
+.btn-primary *,
+.btn-primary svg,
+.admin-sidebar nav a.active,
+.admin-sidebar nav a.active:link,
+.admin-sidebar nav a.active:visited,
+.admin-sidebar nav a.active:hover,
+.admin-sidebar nav a.active:focus,
+.admin-sidebar nav a.active:active,
+.admin-sidebar nav a.active *,
+.admin-sidebar nav a.active svg {
+  color: #ffffff !important;
 }

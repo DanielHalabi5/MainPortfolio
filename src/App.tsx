@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowUpRight, Code2, Download, ExternalLink, Layers3, Loader2, Lock, Mail, Menu, MonitorSmartphone, Palette, Send, Sparkles, X } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, Braces, CheckCircle2, Code2, Database, Download, ExternalLink, Gauge, Layers3, Loader2, Lock, Mail, Menu, MonitorSmartphone, Palette, PenTool, Rocket, Send, Server, Sparkles, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useEffect, useMemo, useState } from 'react';
 import type { ComponentType, ReactNode } from 'react';
@@ -12,13 +12,34 @@ import type { DashboardOverview, Message, MessageFormValues, Project, ProjectFil
 
 const filters: ProjectFilter[] = ['All', 'Development', 'UI/UX'];
 
-const skills = [
-  { label: 'React + Vite', icon: SiReact },
-  { label: 'TypeScript', icon: SiTypescript },
-  { label: 'Tailwind CSS', icon: SiTailwindcss },
-  { label: 'Node.js + Express', icon: SiNodedotjs },
-  { label: 'MongoDB + Mongoose', icon: SiMongodb },
-  { label: 'Figma UI/UX', icon: FaFigma }
+const skillGroups = [
+  {
+    title: 'Frontend',
+    icon: Code2,
+    items: [
+      { label: 'React + Vite', icon: SiReact },
+      { label: 'TypeScript', icon: SiTypescript },
+      { label: 'Tailwind CSS', icon: SiTailwindcss }
+    ]
+  },
+  {
+    title: 'Backend',
+    icon: Server,
+    items: [
+      { label: 'Node.js + Express', icon: SiNodedotjs },
+      { label: 'MongoDB + Mongoose', icon: SiMongodb },
+      { label: 'REST APIs', icon: Braces }
+    ]
+  },
+  {
+    title: 'Design & Tools',
+    icon: PenTool,
+    items: [
+      { label: 'Figma UI/UX', icon: FaFigma },
+      { label: 'Design systems', icon: Layers3 },
+      { label: 'Responsive polish', icon: MonitorSmartphone }
+    ]
+  }
 ];
 
 function ScrollToTop() {
@@ -55,7 +76,7 @@ function Header() {
   const nav = [
     { label: 'About', to: '/#about' },
     { label: 'Skills', to: '/#skills' },
-    { label: 'Projects', to: '/#projects' },
+    { label: 'Projects', to: '/projects' },
     { label: 'Contact', to: '/#contact' }
   ];
 
@@ -91,6 +112,9 @@ function Header() {
                 {item.label}
               </Link>
             ))}
+            <a className="btn-primary" href="/DanielHalabiCV.pdf" download>
+              <Download size={16} /> Download CV
+            </a>
           </div>
         </div>
       )}
@@ -104,14 +128,14 @@ function Hero() {
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}>
         <span className="eyebrow"><Sparkles size={14} /> Available for select projects</span>
         <h1 className="mt-6 max-w-3xl text-4xl font-bold leading-tight text-text sm:text-5xl lg:text-6xl">
-          Building developer-focused products with polished UI/UX.
+          Building developer-focused products with <span className="text-primary">polished UI/UX.</span>
         </h1>
         <p className="mt-5 max-w-2xl text-base leading-8 text-muted">
           I am Daniel Halabi, a full-stack developer and UI/UX designer creating fast React interfaces,
           practical Node and MongoDB backends, and clean product experiences that feel easy to use.
         </p>
         <div className="mt-8 flex flex-wrap gap-4">
-          <Link className="btn-primary" to="/#projects">
+          <Link className="btn-primary" to="/projects">
             View Projects <ArrowUpRight size={16} />
           </Link>
           <Link className="btn-secondary" to="/#contact">
@@ -119,58 +143,95 @@ function Hero() {
           </Link>
         </div>
       </motion.div>
-      <motion.div className="hero-panel" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.45 }}>
-        <div className="panel-header">
-          <span />
-          <span />
-          <span />
-        </div>
-        <div className="panel-grid">
-          <div>
-            <small>Role</small>
-            <strong>Full Stack</strong>
-          </div>
-          <div>
-            <small>Design</small>
-            <strong>UI/UX</strong>
-          </div>
-          <div>
-            <small>Stack</small>
-            <strong>MERN</strong>
-          </div>
-          <div>
-            <small>Focus</small>
-            <strong>Products</strong>
-          </div>
-        </div>
-        <div className="code-card">
-          <span>const portfolio = &#123;</span>
-          <span>  frontend: 'React + TypeScript',</span>
-          <span>  backend: 'Express + MongoDB',</span>
-          <span>  design: 'Figma + usability'</span>
-          <span>&#125;</span>
-        </div>
-      </motion.div>
+      <HeroMockup />
     </section>
   );
 }
 
+function HeroMockup() {
+  return (
+    <motion.div className="hero-device" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.45 }}>
+      <div className="device-window">
+        <div className="device-bar">
+          <span />
+          <span />
+          <span />
+        </div>
+        <div className="dashboard-grid">
+          <div className="dashboard-sidebar">
+            <span className="sidebar-dot active" />
+            <span className="sidebar-dot" />
+            <span className="sidebar-dot" />
+            <span className="sidebar-dot" />
+          </div>
+          <div className="dashboard-main">
+            <div className="dashboard-topline">
+              <div>
+                <small>Portfolio OS</small>
+                <strong>Project pipeline</strong>
+              </div>
+              <span>Live</span>
+            </div>
+            <div className="dashboard-cards">
+              <div><Gauge size={18} /><strong>98%</strong><span>UX polish</span></div>
+              <div><Database size={18} /><strong>Mongo</strong><span>Dynamic CMS</span></div>
+              <div><FaFigma size={18} /><strong>Figma</strong><span>Design flow</span></div>
+            </div>
+            <div className="dashboard-chart">
+              <span style={{ height: '42%' }} />
+              <span style={{ height: '68%' }} />
+              <span style={{ height: '55%' }} />
+              <span style={{ height: '88%' }} />
+              <span style={{ height: '72%' }} />
+              <span style={{ height: '96%' }} />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="device-base" />
+    </motion.div>
+  );
+}
+
 function About() {
+  const metrics = [
+    { value: '6+', label: 'Featured projects', icon: Rocket },
+    { value: '2', label: 'Core disciplines', icon: Layers3 },
+    { value: 'MERN', label: 'Preferred stack', icon: Database }
+  ];
+  const points = [
+    'Interfaces planned around real user flows, not just good-looking screens.',
+    'React frontends connected to practical Express and MongoDB APIs.',
+    'Design decisions translated into responsive, maintainable components.'
+  ];
+
   return (
     <section className="section" id="about">
-      <div className="section-heading">
-        <span className="eyebrow"><Layers3 size={14} /> About</span>
-        <h2>Practical engineering with a designer's eye.</h2>
-      </div>
       <div className="about-grid">
-        <p>
-          I work across the full product path: shaping user flows, designing interfaces, building frontends,
-          connecting APIs, and making sure the final result is clear, responsive, and easy to maintain.
-        </p>
+        <div className="about-copy">
+          <span className="eyebrow"><Layers3 size={14} /> About</span>
+          <h2>Practical engineering with a designer's eye.</h2>
+          <p>
+            I work across the full product path: shaping user flows, designing interfaces, building frontends,
+            connecting APIs, and making sure the final result is clear, responsive, and easy to maintain.
+          </p>
+          <div className="about-points">
+            {points.map((point) => (
+              <span key={point}>
+                <CheckCircle2 size={18} />
+                {point}
+              </span>
+            ))}
+          </div>
+        </div>
         <div className="metric-grid">
-          <span><strong>6+</strong> Featured projects</span>
-          <span><strong>2</strong> Core disciplines</span>
-          <span><strong>MERN</strong> Preferred stack</span>
+          {metrics.map(({ value, label, icon: Icon }) => (
+            <span key={label}>
+              <Icon size={20} />
+              <strong>{value}</strong>
+              {label}
+            </span>
+          ))}
         </div>
       </div>
     </section>
@@ -185,10 +246,20 @@ function Skills() {
         <h2>Tools I use to ship reliable digital products.</h2>
       </div>
       <div className="skill-grid">
-        {skills.map(({ label, icon: Icon }) => (
-          <div className="skill-card" key={label}>
-            <Icon size={24} />
-            <span>{label}</span>
+        {skillGroups.map(({ title, icon: GroupIcon, items }) => (
+          <div className="skill-card" key={title}>
+            <div className="skill-card-head">
+              <span><GroupIcon size={20} /></span>
+              <h3>{title}</h3>
+            </div>
+            <div className="skill-list">
+              {items.map(({ label, icon: Icon }) => (
+                <span key={label}>
+                  <Icon size={18} />
+                  {label}
+                </span>
+              ))}
+            </div>
           </div>
         ))}
       </div>
@@ -223,18 +294,18 @@ function ProjectCard({ project }: { project: Project }) {
         {project.technologies.slice(0, 4).map((tech) => <span className="tag" key={tech}>{tech}</span>)}
       </div>
       <div className="card-actions">
-        <Link className="btn-card" to={`/projects/${project.slug}`}>
-          Details <ArrowUpRight size={15} />
+        {project.liveUrl && <a className="btn-primary" href={project.liveUrl} target="_blank" rel="noreferrer">Live Demo <ExternalLink size={15} /></a>}
+        {project.githubUrl && <a className="btn-card" href={project.githubUrl} target="_blank" rel="noreferrer"><FaGithub size={16} /> GitHub</a>}
+        {project.figmaUrl && <a className="btn-card" href={project.figmaUrl} target="_blank" rel="noreferrer"><FaFigma size={16} /> Figma</a>}
+        <Link className="icon-link" to={`/projects/${project.slug}`} aria-label={`${project.title} details`}>
+          <ArrowUpRight size={17} />
         </Link>
-        {project.githubUrl && <a className="icon-link" href={project.githubUrl} target="_blank" rel="noreferrer" aria-label="GitHub"><FaGithub size={17} /></a>}
-        {project.liveUrl && <a className="icon-link" href={project.liveUrl} target="_blank" rel="noreferrer" aria-label="Live demo"><ExternalLink size={17} /></a>}
-        {project.figmaUrl && <a className="icon-link" href={project.figmaUrl} target="_blank" rel="noreferrer" aria-label="Figma"><FaFigma size={17} /></a>}
       </div>
     </motion.article>
   );
 }
 
-function Projects() {
+function Projects({ preview = false }: { preview?: boolean }) {
   const [filter, setFilter] = useState<ProjectFilter>('All');
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
@@ -259,38 +330,63 @@ function Projects() {
     };
   }, [filter]);
 
+  const visibleProjects = preview ? projects.filter((project) => project.featured).slice(0, 3) : projects;
+
   return (
     <section className="section" id="projects">
       <div className="section-heading centered">
         <span className="eyebrow"><MonitorSmartphone size={14} /> Projects</span>
-        <h2>Dynamic work pulled from MongoDB.</h2>
-        <p>Filter development builds and UI/UX case studies from the backend project collection.</p>
+        <h2>{preview ? 'Selected work from the portfolio.' : 'All projects and case studies.'}</h2>
+        <p>{preview ? 'A focused preview of featured builds and UI/UX work. The full project archive lives on its own page.' : 'Filter development builds and UI/UX case studies from the backend project collection.'}</p>
       </div>
-      <div className="filter-tabs">
-        {filters.map((item) => (
-          <button
-            className={filter === item ? 'active' : ''}
-            key={item}
-            type="button"
-            onClick={() => {
-              setFilter(item);
-              setLoading(true);
-              setError('');
-            }}
-          >
-            {item}
-          </button>
-        ))}
-      </div>
+      {!preview && (
+        <div className="filter-tabs">
+          {filters.map((item) => (
+            <button
+              className={filter === item ? 'active' : ''}
+              key={item}
+              type="button"
+              onClick={() => {
+                setFilter(item);
+                setLoading(true);
+                setError('');
+              }}
+            >
+              {item}
+            </button>
+          ))}
+        </div>
+      )}
       {loading && <StateMessage icon={Loader2} title="Loading projects" message="Fetching the latest portfolio projects..." spinning />}
       {error && <StateMessage title="Project API unavailable" message={error} />}
       {!loading && !error && (
-        <div className="projects-grid">
-          {projects.map((project) => <ProjectCard key={project._id} project={project} />)}
-          {projects.length === 0 && <StateMessage title="No projects found" message="Try another filter or add projects from the admin dashboard." />}
-        </div>
+        <>
+          <div className="projects-grid">
+            {visibleProjects.map((project) => <ProjectCard key={project._id} project={project} />)}
+            {visibleProjects.length === 0 && <StateMessage title="No projects found" message="Try another filter or add projects from the admin dashboard." />}
+          </div>
+          {preview && projects.length > visibleProjects.length && (
+            <div className="section-action">
+              <Link className="btn-primary" to="/projects">
+                View all projects <ArrowUpRight size={16} />
+              </Link>
+            </div>
+          )}
+        </>
       )}
     </section>
+  );
+}
+
+function ProjectsPage() {
+  return (
+    <>
+      <Header />
+      <main>
+        <Projects />
+      </main>
+      <Footer />
+    </>
   );
 }
 
@@ -380,7 +476,7 @@ function HomePage() {
         <Hero />
         <About />
         <Skills />
-        <Projects />
+        <Projects preview />
         <Contact />
       </main>
       <Footer />
@@ -427,7 +523,7 @@ function ProjectDetailsPage() {
     <>
       <Header />
       <main className="detail-page">
-        <Link className="btn-secondary w-fit" to="/#projects"><ArrowLeft size={16} /> Back to projects</Link>
+        <Link className="btn-secondary w-fit" to="/projects"><ArrowLeft size={16} /> Back to projects</Link>
         {loading && <StateMessage icon={Loader2} title="Loading project" message="Fetching project details..." spinning />}
         {error && <StateMessage title="Project unavailable" message={error} />}
         {project && (
@@ -822,6 +918,7 @@ export default function App() {
       <ScrollToTop />
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/projects" element={<ProjectsPage />} />
         <Route path="/projects/:slug" element={<ProjectDetailsPage />} />
         <Route path="/admin/login" element={<AdminLoginPage />} />
         <Route path="/admin" element={<ProtectedRoute><AdminOverview /></ProtectedRoute>} />
