@@ -66,6 +66,11 @@ export async function deleteMessage(id: string) {
   await api.delete(`/messages/${id}`);
 }
 
+export async function replyToMessage(id: string, replyText: string) {
+  const { data } = await api.post<{ data: Message; email: { to: string; subject: string; body: string } }>(`/messages/${id}/reply`, { replyText });
+  return data;
+}
+
 function projectFormData(values: ProjectFormValues) {
   const formData = new FormData();
   formData.append('title', values.title);

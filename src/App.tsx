@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form';
 import type { SubmitHandler } from 'react-hook-form';
 import { FaFigma, FaGithub, FaLinkedinIn } from 'react-icons/fa';
 import { SiMongodb, SiNodedotjs, SiReact, SiTailwindcss, SiTypescript } from 'react-icons/si';
-import { clearAdminToken, createProject, deleteMessage, deleteProject, fetchMessages, fetchOverview, fetchProject, fetchProjects, getAdminToken, loginAdmin, sendMessage, updateMessageRead, updateProject } from './lib/api';
+import { clearAdminToken, createProject, deleteMessage, deleteProject, fetchMessages, fetchOverview, fetchProject, fetchProjects, getAdminToken, loginAdmin, replyToMessage, sendMessage, updateMessageRead, updateProject } from './lib/api';
 import type { DashboardOverview, Message, MessageFormValues, Project, ProjectFilter, ProjectFormValues } from './types';
 
 const filters: ProjectFilter[] = ['All', 'Development', 'UI/UX'];
@@ -918,6 +918,8 @@ function AdminMessages() {
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyText, setReplyText] = useState('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [sendingReplyId, setSendingReplyId] = useState<string | null>(null);
+  const [replyStatus, setReplyStatus] = useState<{ id: string; message: string; failed?: boolean } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -954,12 +956,34 @@ function AdminMessages() {
     setReplyingTo((current) => current === message._id ? null : message._id);
     setReplyText('');
     setCopiedId(null);
+    setReplyStatus(null);
   }
 
   async function copyReply(message: Message) {
     const draft = buildReplyDraft(message, replyText);
     await navigator.clipboard.writeText(`To: ${message.email}\nSubject: ${draft.subject}\n\n${draft.body}`);
     setCopiedId(message._id);
+  }
+
+  async function sendReply(message: Message) {
+    if (!replyText.trim()) {
+      setReplyStatus({ id: message._id, message: 'Write a reply before sending.', failed: true });
+      return;
+    }
+
+    setSendingReplyId(message._id);
+    setReplyStatus(null);
+
+    try {
+      const response = await replyToMessage(message._id, replyText);
+      setMessages((current) => current.map((item) => item._id === response.data._id ? response.data : item));
+      setReplyStatus({ id: message._id, message: 'Reply sent successfully.' });
+      setReplyText('');
+    } catch {
+      setReplyStatus({ id: message._id, message: 'Reply could not be sent. Check SMTP settings and try again.', failed: true });
+    } finally {
+      setSendingReplyId(null);
+    }
   }
 
   return (
@@ -994,10 +1018,13 @@ function AdminMessages() {
             {replyingTo === message._id && (
               <MessageReplyComposer
                 copied={copiedId === message._id}
+                isSending={sendingReplyId === message._id}
                 message={message}
                 replyText={replyText}
                 onCopy={() => void copyReply(message)}
                 onReplyTextChange={setReplyText}
+                onSend={() => void sendReply(message)}
+                status={replyStatus?.id === message._id ? replyStatus : null}
               />
             )}
           </article>
@@ -1034,19 +1061,24 @@ function buildReplyDraft(message: Message, replyText: string) {
 
 function MessageReplyComposer({
   copied,
+  isSending,
   message,
+  onSend,
   replyText,
   onCopy,
-  onReplyTextChange
+  onReplyTextChange,
+  status
 }: {
   copied: boolean;
+  isSending: boolean;
   message: Message;
+  onSend: () => void;
   replyText: string;
   onCopy: () => void;
   onReplyTextChange: (value: string) => void;
+  status: { message: string; failed?: boolean } | null;
 }) {
   const draft = buildReplyDraft(message, replyText);
-  const mailtoHref = `mailto:${message.email}?subject=${encodeURIComponent(draft.subject)}&body=${encodeURIComponent(draft.body)}`;
   const gmailHref = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(message.email)}&su=${encodeURIComponent(draft.subject)}&body=${encodeURIComponent(draft.body)}`;
 
   return (
@@ -1075,16 +1107,16 @@ function MessageReplyComposer({
         </div>
       </div>
       <div className="reply-actions">
-        <a className="btn-primary reply-action-primary" href={gmailHref} target="_blank" rel="noreferrer">
+        <button className="btn-primary reply-action-primary" type="button" onClick={onSend} disabled={isSending}>
+          <span className="reply-action-label">
+            {isSending ? <Loader2 className="animate-spin" size={15} /> : <Send size={15} />}
+            <span>{isSending ? 'Sending' : 'Send'}</span>
+          </span>
+        </button>
+        <a className="btn-card reply-action" href={gmailHref} target="_blank" rel="noreferrer">
           <span className="reply-action-label">
             <ExternalLink size={15} />
             <span>Gmail</span>
-          </span>
-        </a>
-        <a className="btn-card reply-action" href={mailtoHref}>
-          <span className="reply-action-label">
-            <Mail size={15} />
-            <span>Mail app</span>
           </span>
         </a>
         <button className="btn-card reply-action" type="button" onClick={onCopy}>
@@ -1094,6 +1126,7 @@ function MessageReplyComposer({
           </span>
         </button>
       </div>
+      {status && <p className={`form-status ${status.failed ? 'error' : 'success'}`}>{status.message}</p>}
     </div>
   );
 }

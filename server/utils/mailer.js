@@ -1,13 +1,13 @@
 import nodemailer from 'nodemailer';
 
-export async function sendContactNotification(message) {
-  const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, CONTACT_EMAIL } = process.env;
+function createSmtpTransporter() {
+  const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS } = process.env;
 
-  if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS || !CONTACT_EMAIL) {
-    return { skipped: true };
+  if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) {
+    return null;
   }
 
-  const transporter = nodemailer.createTransport({
+  return nodemailer.createTransport({
     host: SMTP_HOST,
     port: Number(SMTP_PORT || 587),
     secure: Number(SMTP_PORT) === 465,
@@ -16,6 +16,15 @@ export async function sendContactNotification(message) {
       pass: SMTP_PASS
     }
   });
+}
+
+export async function sendContactNotification(message) {
+  const { SMTP_USER, CONTACT_EMAIL } = process.env;
+  const transporter = createSmtpTransporter();
+
+  if (!transporter || !CONTACT_EMAIL) {
+    return { skipped: true };
+  }
 
   await transporter.sendMail({
     from: `"Portfolio Contact" <${SMTP_USER}>`,
@@ -26,4 +35,23 @@ export async function sendContactNotification(message) {
   });
 
   return { skipped: false };
+}
+
+export async function sendContactReply({ to, subject, body }) {
+  const { SMTP_USER, CONTACT_EMAIL } = process.env;
+  const transporter = createSmtpTransporter();
+
+  if (!transporter) {
+    throw new Error('SMTP is not configured');
+  }
+
+  await transporter.sendMail({
+    from: `"Daniel Halabi" <${SMTP_USER}>`,
+    to,
+    subject,
+    replyTo: CONTACT_EMAIL || SMTP_USER,
+    text: body
+  });
+
+  return { sent: true };
 }
