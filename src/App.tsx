@@ -654,18 +654,29 @@ function AdminOverview() {
   const [overview, setOverview] = useState<DashboardOverview | null>(null);
   const [cv, setCv] = useState<CvInfo | null>(null);
   const [error, setError] = useState('');
+  const [cvError, setCvError] = useState('');
 
   useEffect(() => {
     let active = true;
 
-    Promise.all([fetchOverview(), fetchCvInfo()])
-      .then(([overviewData, cvData]) => {
-        if (!active) return;
-        setOverview(overviewData);
-        setCv(cvData);
+    fetchOverview()
+      .then((overviewData) => {
+        if (active) {
+          setOverview(overviewData);
+        }
       })
       .catch(() => {
         if (active) setError('Dashboard overview could not be loaded.');
+      });
+
+    fetchCvInfo()
+      .then((cvData) => {
+        if (!active) return;
+        setCv(cvData);
+        setCvError('');
+      })
+      .catch(() => {
+        if (active) setCvError('CV details could not be loaded, but you can still upload a replacement.');
       });
 
     return () => {
@@ -686,7 +697,7 @@ function AdminOverview() {
         <span><strong>{overview?.totalMessages ?? '-'}</strong>Total messages</span>
         <span><strong>{overview?.unreadMessages ?? '-'}</strong>Unread messages</span>
       </div>
-      <CvManager cv={cv} onUpdated={setCv} />
+      <CvManager cv={cv} loadError={cvError} onUpdated={setCv} />
     </AdminLayout>
   );
 }
@@ -697,7 +708,7 @@ function formatFileSize(size: number) {
   return `${(size / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-function CvManager({ cv, onUpdated }: { cv: CvInfo | null; onUpdated: (cv: CvInfo) => void }) {
+function CvManager({ cv, loadError, onUpdated }: { cv: CvInfo | null; loadError: string; onUpdated: (cv: CvInfo) => void }) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [status, setStatus] = useState('');
   const [failed, setFailed] = useState(false);
@@ -741,6 +752,7 @@ function CvManager({ cv, onUpdated }: { cv: CvInfo | null; onUpdated: (cv: CvInf
         </div>
       </div>
       <form className="cv-form" onSubmit={(event) => void handleSubmit(event)}>
+        {loadError && <p className="form-status error">{loadError}</p>}
         <label>
           <span>Replace CV PDF</span>
           <input
