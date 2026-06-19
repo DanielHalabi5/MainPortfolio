@@ -1,0 +1,21 @@
+name: Keep API Awake
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping API health endpoint
+        env:
+          API_BASE_URL: ${{ secrets.API_BASE_URL }}
+        run: |
+          if [ -z "$API_BASE_URL" ]; then
+            echo "Missing API_BASE_URL repository secret"
+            exit 1
+          fi
+
+          curl --fail --silent --show-error "$API_BASE_URL/api/health"
