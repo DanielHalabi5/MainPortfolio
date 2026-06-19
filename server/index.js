@@ -13,9 +13,22 @@ dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 5000;
+const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
+  .split(',')
+  .map((origin) => origin.trim().replace(/\/$/, ''))
+  .filter(Boolean);
 
 app.set('trust proxy', 1);
-app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:5173' }));
+app.use(cors({
+  origin(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin.replace(/\/$/, ''))) {
+      callback(null, true);
+      return;
+    }
+
+    callback(new Error('Origin is not allowed by CORS'));
+  }
+}));
 app.use(express.json({ limit: '1mb' }));
 app.use(morgan('dev'));
 app.use('/uploads', express.static(uploadsDirectory));
