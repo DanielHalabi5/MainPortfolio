@@ -931,7 +931,7 @@ function ProjectForm({ editing, onSaved, onCancel }: { editing: Project | null; 
 
       await onSaved();
     } catch {
-      setError('Project could not be saved. Check required fields and API credentials.');
+      setError('Project could not be saved. Check required fields and upload size.');
     }
   };
 

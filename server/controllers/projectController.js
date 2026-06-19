@@ -1,5 +1,5 @@
-import { deleteImage, uploadBuffer } from '../config/cloudinary.js';
 import { Project } from '../models/Project.js';
+import { deleteProjectImage, saveProjectImage } from '../utils/localUploads.js';
 import { slugify } from '../utils/slugify.js';
 
 function parseTechnologies(value) {
@@ -58,7 +58,7 @@ export async function createProject(req, res) {
   }
 
   if (req.file) {
-    payload.image = await uploadBuffer(req.file.buffer);
+    payload.image = await saveProjectImage(req.file, req);
   } else if (req.body.imageUrl) {
     payload.image = { url: req.body.imageUrl, publicId: '' };
   }
@@ -78,12 +78,16 @@ export async function updateProject(req, res) {
 
   if (req.file) {
     if (project.image?.publicId) {
-      await deleteImage(project.image.publicId);
+      await deleteProjectImage(project.image.publicId);
     }
 
-    payload.image = await uploadBuffer(req.file.buffer);
+    payload.image = await saveProjectImage(req.file, req);
   } else if (req.body.imageUrl !== undefined) {
-    payload.image = { url: req.body.imageUrl, publicId: project.image?.publicId || '' };
+    if (project.image?.publicId) {
+      await deleteProjectImage(project.image.publicId);
+    }
+
+    payload.image = { url: req.body.imageUrl, publicId: '' };
   }
 
   const updatedProject = await Project.findByIdAndUpdate(project._id, payload, {
@@ -102,7 +106,7 @@ export async function deleteProject(req, res) {
   }
 
   if (project.image?.publicId) {
-    await deleteImage(project.image.publicId);
+    await deleteProjectImage(project.image.publicId);
   }
 
   await project.deleteOne();

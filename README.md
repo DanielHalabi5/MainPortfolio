@@ -1,6 +1,6 @@
 # Daniel Halabi Portfolio
 
-A dynamic full-stack portfolio for Daniel Halabi built with React, TypeScript, Tailwind CSS, Node.js, Express, MongoDB, JWT authentication, and Cloudinary-ready project image uploads.
+A dynamic full-stack portfolio for Daniel Halabi built with React, TypeScript, Tailwind CSS, Node.js, Express, MongoDB, JWT authentication, and local project image uploads.
 
 ## Features
 
@@ -12,16 +12,16 @@ A dynamic full-stack portfolio for Daniel Halabi built with React, TypeScript, T
 - Optional email notifications through Nodemailer SMTP settings
 - Protected admin login using JWT
 - Admin dashboard overview with project and message totals
-- Project management: add, edit, delete, image URL, and Cloudinary upload support
+- Project management: add, edit, delete, image URL, local image uploads, and CV replacement
 - Message management: view, mark read/unread, and delete messages
-- Clean environment configuration with `.env.example`
+- Environment-driven configuration for database, auth, and email settings
 
 ## Tech Stack
 
 - Frontend: React, TypeScript, Vite, Tailwind CSS, React Router, React Hook Form
 - Backend: Node.js, Express, Mongoose, MongoDB
 - Auth: JWT, bcryptjs
-- Uploads: Multer, Cloudinary
+- Uploads: Multer with local static file serving
 - Email: Nodemailer
 - Tooling: ESLint, TypeScript
 
@@ -33,27 +33,21 @@ A dynamic full-stack portfolio for Daniel Halabi built with React, TypeScript, T
 npm install
 ```
 
-2. Create an environment file:
+2. Create a local `.env` file with your MongoDB URI, JWT secret, admin credentials, and optional SMTP settings.
 
-```bash
-cp .env.example .env
-```
-
-3. Update `.env` with your MongoDB URI, JWT secret, admin credentials, and optional Cloudinary/SMTP settings.
-
-4. Seed the admin user and starter projects:
+3. Seed the admin user and starter projects:
 
 ```bash
 npm run seed
 ```
 
-5. Start the backend API:
+4. Start the backend API:
 
 ```bash
 npm run server
 ```
 
-6. In another terminal, start the frontend:
+5. In another terminal, start the frontend:
 
 ```bash
 npm run dev
@@ -70,22 +64,25 @@ The frontend runs on `http://localhost:5173` and proxies `/api` requests to `htt
 
 ## Environment Variables
 
-See `.env.example` for all supported variables:
+Supported backend variables:
 
 - `MONGODB_URI`
 - `JWT_SECRET`
+- `JWT_EXPIRES_IN`
+- `ADMIN_NAME`
 - `ADMIN_EMAIL`
 - `ADMIN_PASSWORD`
-- `CLOUDINARY_CLOUD_NAME`
-- `CLOUDINARY_API_KEY`
-- `CLOUDINARY_API_SECRET`
 - `SMTP_HOST`
 - `SMTP_PORT`
 - `SMTP_USER`
 - `SMTP_PASS`
 - `CONTACT_EMAIL`
 
-Cloudinary and SMTP are optional for local development. Project image URLs can be entered manually if Cloudinary is not configured.
+Supported frontend variable:
+
+- `VITE_API_URL`
+
+SMTP is optional for local development. Project images uploaded from the admin are stored on the backend under `server/uploads` and served from `/uploads`.
 
 ## Scripts
 
@@ -102,7 +99,7 @@ npm run preview  # Preview production build
 
 - Set a long random `JWT_SECRET`
 - Use a real MongoDB connection string
-- Configure Cloudinary credentials for image uploads
+- Use persistent server storage if you need uploaded files to survive platform redeploys or restarts
 - Configure SMTP variables for contact notifications
 - Set `VITE_API_URL` if the frontend and backend are deployed on different origins
 - Never commit `.env` or credential files

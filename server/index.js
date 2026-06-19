@@ -2,23 +2,23 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
 import morgan from 'morgan';
-import { configureCloudinary } from './config/cloudinary.js';
 import { connectDB } from './config/db.js';
 import { adminRoutes } from './routes/adminRoutes.js';
 import { authRoutes } from './routes/authRoutes.js';
 import { messageRoutes } from './routes/messageRoutes.js';
 import { projectRoutes } from './routes/projectRoutes.js';
+import { uploadsDirectory } from './utils/localUploads.js';
 
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 5000;
 
-configureCloudinary();
-
+app.set('trust proxy', 1);
 app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:5173' }));
 app.use(express.json({ limit: '1mb' }));
 app.use(morgan('dev'));
+app.use('/uploads', express.static(uploadsDirectory));
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok' });
