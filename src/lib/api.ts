@@ -1,10 +1,19 @@
 import axios from 'axios';
 import type { AdminUser, CvInfo, DashboardOverview, Message, MessageFormValues, Project, ProjectFilter, ProjectFormValues } from '../types';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+function apiBaseUrl() {
+  const configuredUrl = import.meta.env.VITE_API_URL?.trim();
+
+  if (!configuredUrl) {
+    return '/api';
+  }
+
+  const normalizedUrl = configuredUrl.replace(/\/$/, '');
+  return normalizedUrl.endsWith('/api') ? normalizedUrl : `${normalizedUrl}/api`;
+}
 
 export const api = axios.create({
-  baseURL: API_BASE_URL
+  baseURL: apiBaseUrl()
 });
 
 api.interceptors.request.use((config) => {
