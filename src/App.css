@@ -372,9 +372,12 @@ h4,
     @apply mt-2 w-fit text-sm font-bold text-primary transition duration-200 hover:text-primaryHover;
   }
 
-  .project-image,
+  .project-image {
+    @apply block h-auto w-full rounded-lg border border-border bg-surfaceSoft object-contain;
+  }
+
   .project-placeholder {
-    @apply aspect-video h-auto w-full rounded-lg border border-border bg-surfaceSoft object-contain;
+    @apply aspect-video h-auto w-full rounded-lg border border-border;
   }
 
   .project-placeholder {
@@ -488,7 +491,6 @@ h4,
     @apply mt-8 grid gap-8 rounded-lg border border-border bg-surface p-5 shadow-card md:grid-cols-[0.9fr_1fr] md:p-7;
   }
 
-  .detail-layout .project-image,
   .detail-layout .project-placeholder {
     @apply min-h-80;
   }
@@ -674,9 +676,12 @@ h4,
     @apply grid gap-4 rounded-lg border border-border bg-surface p-4 shadow-card transition duration-200 hover:-translate-y-1 hover:shadow-cardHover md:grid-cols-[220px_1fr] md:items-start;
   }
 
-  .admin-project-card .project-image,
   .admin-project-card .project-placeholder {
     @apply md:h-full md:min-h-40;
+  }
+
+  .admin-project-card .project-image {
+    @apply md:self-start;
   }
 
   .admin-project-body {
