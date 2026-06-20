@@ -373,7 +373,8 @@ h4,
   }
 
   .project-image {
-    @apply block h-auto w-full rounded-lg border border-border bg-surfaceSoft object-contain;
+    @apply block w-full rounded-lg border border-border bg-surfaceSoft object-contain;
+    height: clamp(10rem, 24vw, 13.5rem);
   }
 
   .project-placeholder {
@@ -747,7 +748,7 @@ h4,
   }
 
   .admin-project-actions {
-    @apply grid gap-2 border-t border-border pt-4 sm:flex sm:flex-wrap;
+    @apply grid min-h-10 gap-2 border-t border-border pt-4 sm:flex sm:flex-wrap sm:items-center;
   }
 
   .admin-project-actions .btn-card,
