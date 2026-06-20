@@ -267,8 +267,20 @@ function Skills() {
 }
 
 function ProjectVisual({ project }: { project: Project }) {
+  const [orientation, setOrientation] = useState<'portrait' | 'landscape' | ''>('');
+
   if (project.image?.url) {
-    return <img className="project-image" src={project.image.url} alt={project.title} />;
+    return (
+      <img
+        className={`project-image ${orientation}`}
+        src={project.image.url}
+        alt={project.title}
+        onLoad={(event) => {
+          const image = event.currentTarget;
+          setOrientation(image.naturalHeight > image.naturalWidth ? 'portrait' : 'landscape');
+        }}
+      />
+    );
   }
 
   return (
