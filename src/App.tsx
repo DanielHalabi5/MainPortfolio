@@ -896,19 +896,18 @@ function AdminProjects() {
             </button>
           ))}
         </div>
-        {hasActiveFilters && (
-          <button
-            className="btn-card"
-            type="button"
-            onClick={() => {
-              setSearchTerm('');
-              setCategoryFilter('All');
-              setFeaturedFilter('All');
-            }}
-          >
-            Clear
-          </button>
-        )}
+        <button
+          className={`btn-card admin-clear-filters ${hasActiveFilters ? '' : 'inactive'}`}
+          type="button"
+          disabled={!hasActiveFilters}
+          onClick={() => {
+            setSearchTerm('');
+            setCategoryFilter('All');
+            setFeaturedFilter('All');
+          }}
+        >
+          Clear
+        </button>
       </div>
       {!loading && !error && (
         <p className="admin-result-count">
