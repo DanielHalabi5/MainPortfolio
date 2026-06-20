@@ -1,0 +1,10 @@
+{
+  "explorer.excludeGitIgnore": true,
+  "files.exclude": {
+    "**/.npm-cache": true,
+    "**/coverage": true,
+    "**/dist": true,
+    "**/node_modules": true,
+    "**/server/uploads": true
+  }
+}

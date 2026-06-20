@@ -1,5 +1,10 @@
 .env
+.env.*
+!.env.example
 .npm-cache/
 coverage/
 dist/
+logs/
+*.log
 node_modules/
+server/uploads/
