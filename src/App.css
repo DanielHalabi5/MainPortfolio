@@ -709,15 +709,15 @@ h4,
   }
 
   .admin-project-card {
-    @apply grid gap-4 rounded-lg border border-border bg-surface p-4 shadow-card transition duration-200 hover:-translate-y-1 hover:shadow-cardHover md:grid-cols-[180px_minmax(0,1fr)_auto] md:items-center;
+    @apply grid gap-4 rounded-lg border border-border bg-surface p-4 shadow-card transition duration-200 hover:-translate-y-1 hover:shadow-cardHover;
   }
 
   .admin-project-card .project-placeholder {
-    @apply md:h-28;
+    @apply mx-auto max-h-56 max-w-xl;
   }
 
   .admin-project-card .project-image {
-    @apply md:h-28 md:self-center md:object-contain;
+    @apply mx-auto max-h-56 max-w-xl object-contain;
   }
 
   .admin-project-body {
@@ -745,7 +745,7 @@ h4,
   }
 
   .admin-project-actions {
-    @apply flex flex-wrap gap-2 border-t border-border pt-4 md:flex-col md:border-l md:border-t-0 md:pl-4 md:pt-0;
+    @apply flex flex-wrap gap-2 border-t border-border pt-4;
   }
 
   .admin-row {
