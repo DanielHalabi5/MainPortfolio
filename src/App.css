@@ -336,6 +336,17 @@ h4,
     @apply flex h-full flex-col overflow-hidden;
   }
 
+  .project-card .project-image,
+  .project-card .project-placeholder {
+    @apply mx-auto max-w-full;
+    width: min(100%, 34rem);
+    height: clamp(12rem, 20vw, 17rem);
+  }
+
+  .project-card .project-image {
+    object-fit: contain;
+  }
+
   .project-card h3 {
     @apply mt-4 text-xl font-bold text-text;
     min-height: 3.5rem;
