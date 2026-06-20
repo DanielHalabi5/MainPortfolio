@@ -672,6 +672,38 @@ h4,
     @apply grid gap-5 xl:grid-cols-2;
   }
 
+  .admin-project-tools {
+    @apply mb-3 grid gap-3 rounded-lg border border-border bg-surface p-4 shadow-card lg:grid-cols-[minmax(260px,1fr)_auto_auto_auto] lg:items-center;
+  }
+
+  .admin-search-field {
+    @apply flex min-h-11 items-center gap-3 rounded-lg border border-border bg-surfaceSoft px-3 text-muted transition duration-200 focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10;
+  }
+
+  .admin-search-field svg {
+    @apply shrink-0 text-muted;
+  }
+
+  .admin-search-field input {
+    @apply min-w-0 flex-1 border-0 bg-transparent p-0 text-sm font-medium text-text outline-none placeholder:text-muted;
+  }
+
+  .admin-filter-group {
+    @apply flex w-full flex-wrap gap-1 rounded-lg border border-border bg-surfaceSoft p-1 sm:w-fit;
+  }
+
+  .admin-filter-group button {
+    @apply min-h-9 rounded-lg px-3 text-sm font-semibold text-muted transition duration-200 hover:bg-surface hover:text-primary;
+  }
+
+  .admin-filter-group button.active {
+    @apply bg-primary text-white shadow-glow;
+  }
+
+  .admin-result-count {
+    @apply mb-4 text-sm font-semibold text-muted;
+  }
+
   .admin-project-card {
     @apply grid gap-4 rounded-lg border border-border bg-surface p-4 shadow-card transition duration-200 hover:-translate-y-1 hover:shadow-cardHover md:grid-cols-[220px_1fr] md:items-start;
   }

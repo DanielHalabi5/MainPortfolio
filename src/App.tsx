@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowUpRight, Braces, CheckCircle2, Code2, Copy, Database, Download, ExternalLink, FileText, Gauge, Layers3, Loader2, Lock, Mail, Menu, MonitorSmartphone, Palette, PenTool, Pencil, Plus, Reply, Rocket, Send, Server, Trash2, Upload, X } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, Braces, CheckCircle2, Code2, Copy, Database, Download, ExternalLink, FileText, Gauge, Layers3, Loader2, Lock, Mail, Menu, MonitorSmartphone, Palette, PenTool, Pencil, Plus, Reply, Rocket, Search, Send, Server, Trash2, Upload, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useEffect, useMemo, useState } from 'react';
 import type { ComponentType, FormEvent, ReactNode } from 'react';
@@ -779,6 +779,9 @@ function AdminProjects() {
   const [formOpen, setFormOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState<ProjectFilter>('All');
+  const [featuredFilter, setFeaturedFilter] = useState<'All' | 'Featured' | 'Standard'>('All');
 
   useEffect(() => {
     let active = true;
@@ -824,6 +827,29 @@ function AdminProjects() {
     setFormOpen(false);
   }
 
+  const filteredProjects = useMemo(() => {
+    const query = searchTerm.trim().toLowerCase();
+
+    return projects.filter((project) => {
+      const matchesCategory = categoryFilter === 'All' || project.category === categoryFilter;
+      const matchesFeatured =
+        featuredFilter === 'All' ||
+        (featuredFilter === 'Featured' ? Boolean(project.featured) : !project.featured);
+      const searchableText = [
+        project.title,
+        project.slug,
+        project.description,
+        project.category,
+        project.featured ? 'featured' : '',
+        ...project.technologies
+      ].join(' ').toLowerCase();
+
+      return matchesCategory && matchesFeatured && (!query || searchableText.includes(query));
+    });
+  }, [categoryFilter, featuredFilter, projects, searchTerm]);
+
+  const hasActiveFilters = Boolean(searchTerm.trim()) || categoryFilter !== 'All' || featuredFilter !== 'All';
+
   return (
     <AdminLayout>
       <div className="admin-heading admin-heading-row">
@@ -836,6 +862,59 @@ function AdminProjects() {
           <Plus size={16} /> Add Project
         </button>
       </div>
+      <div className="admin-project-tools">
+        <label className="admin-search-field">
+          <Search size={18} />
+          <input
+            type="search"
+            value={searchTerm}
+            onChange={(event) => setSearchTerm(event.target.value)}
+            placeholder="Search by title, slug, description, or tech"
+          />
+        </label>
+        <div className="admin-filter-group" aria-label="Filter projects by category">
+          {filters.map((item) => (
+            <button
+              className={categoryFilter === item ? 'active' : ''}
+              key={item}
+              type="button"
+              onClick={() => setCategoryFilter(item)}
+            >
+              {item}
+            </button>
+          ))}
+        </div>
+        <div className="admin-filter-group" aria-label="Filter projects by featured state">
+          {(['All', 'Featured', 'Standard'] as const).map((item) => (
+            <button
+              className={featuredFilter === item ? 'active' : ''}
+              key={item}
+              type="button"
+              onClick={() => setFeaturedFilter(item)}
+            >
+              {item}
+            </button>
+          ))}
+        </div>
+        {hasActiveFilters && (
+          <button
+            className="btn-card"
+            type="button"
+            onClick={() => {
+              setSearchTerm('');
+              setCategoryFilter('All');
+              setFeaturedFilter('All');
+            }}
+          >
+            Clear
+          </button>
+        )}
+      </div>
+      {!loading && !error && (
+        <p className="admin-result-count">
+          Showing {filteredProjects.length} of {projects.length} projects
+        </p>
+      )}
       {formOpen && (
         <ProjectEditorModal editing={editing} onClose={closeProjectForm}>
           <ProjectForm
@@ -852,7 +931,7 @@ function AdminProjects() {
       {loading && <StateMessage icon={Loader2} title="Loading projects" message="Fetching dashboard projects..." spinning />}
       {error && <StateMessage title="Projects unavailable" message={error} />}
       <div className="admin-project-grid">
-        {projects.map((project) => (
+        {filteredProjects.map((project) => (
           <article className="admin-project-card" key={project._id}>
             <ProjectVisual project={project} />
             <div className="admin-project-body">
@@ -878,6 +957,7 @@ function AdminProjects() {
           </article>
         ))}
         {!loading && !error && projects.length === 0 && <StateMessage title="No projects yet" message="Add your first portfolio project from the button above." />}
+        {!loading && !error && projects.length > 0 && filteredProjects.length === 0 && <StateMessage title="No matching projects" message="Clear filters or try a different search." />}
       </div>
     </AdminLayout>
   );
