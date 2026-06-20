@@ -374,7 +374,7 @@ h4,
 
   .project-image,
   .project-placeholder {
-    @apply aspect-video h-auto w-full rounded-lg border border-border object-cover;
+    @apply aspect-video h-auto w-full rounded-lg border border-border bg-surfaceSoft object-contain;
   }
 
   .project-placeholder {
