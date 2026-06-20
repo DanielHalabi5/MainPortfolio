@@ -18,4 +18,18 @@ jobs:
             exit 1
           fi
 
-          curl --fail --silent --show-error "$API_BASE_URL/api/health"
+          API_BASE_URL="${API_BASE_URL%/}"
+          if [[ "$API_BASE_URL" == */api ]]; then
+            HEALTH_URL="$API_BASE_URL/health"
+          else
+            HEALTH_URL="$API_BASE_URL/api/health"
+          fi
+
+          echo "Pinging $HEALTH_URL"
+          curl --fail --silent --show-error --location \
+            --retry 6 \
+            --retry-all-errors \
+            --retry-delay 20 \
+            --connect-timeout 15 \
+            --max-time 60 \
+            "$HEALTH_URL"
