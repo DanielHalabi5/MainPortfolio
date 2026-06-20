@@ -709,15 +709,15 @@ h4,
   }
 
   .admin-project-card {
-    @apply grid gap-4 rounded-lg border border-border bg-surface p-4 shadow-card transition duration-200 hover:-translate-y-1 hover:shadow-cardHover md:grid-cols-[220px_1fr] md:items-start;
+    @apply grid gap-4 rounded-lg border border-border bg-surface p-4 shadow-card transition duration-200 hover:-translate-y-1 hover:shadow-cardHover md:grid-cols-[180px_minmax(0,1fr)_auto] md:items-center;
   }
 
   .admin-project-card .project-placeholder {
-    @apply md:h-full md:min-h-40;
+    @apply md:h-28;
   }
 
   .admin-project-card .project-image {
-    @apply md:self-start;
+    @apply md:h-28 md:self-center md:object-contain;
   }
 
   .admin-project-body {
@@ -725,23 +725,27 @@ h4,
   }
 
   .admin-project-topline {
-    @apply mb-3 flex flex-wrap items-center gap-2;
+    @apply mb-2 flex flex-wrap items-center gap-2;
   }
 
   .admin-project-card h2 {
-    @apply text-lg font-bold leading-7 text-text;
+    @apply text-base font-bold leading-6 text-text;
   }
 
   .admin-project-card p {
-    @apply mt-2 text-sm leading-6 text-muted;
+    @apply mt-1 text-sm leading-6 text-muted;
     display: -webkit-box;
     overflow: hidden;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 3;
+    -webkit-line-clamp: 2;
   }
 
-  .admin-project-card .admin-actions {
-    @apply md:col-span-2 md:border-t md:border-border md:pt-4;
+  .admin-project-card .tag-row {
+    @apply mt-2;
+  }
+
+  .admin-project-actions {
+    @apply flex flex-wrap gap-2 border-t border-border pt-4 md:flex-col md:border-l md:border-t-0 md:pl-4 md:pt-0;
   }
 
   .admin-row {

@@ -924,11 +924,11 @@ function AdminProjects() {
               <h2>{project.title}</h2>
               <p>{project.description}</p>
               <div className="tag-row">
-                {project.technologies.slice(0, 5).map((tech) => <span className="tag" key={tech}>{tech}</span>)}
-                {project.technologies.length > 5 && <span className="tag">+{project.technologies.length - 5}</span>}
+                {project.technologies.slice(0, 3).map((tech) => <span className="tag" key={tech}>{tech}</span>)}
+                {project.technologies.length > 3 && <span className="tag">+{project.technologies.length - 3}</span>}
               </div>
             </div>
-            <div className="admin-actions">
+            <div className="admin-project-actions">
               <button className="btn-card" type="button" onClick={() => openEditProject(project)}>
                 <Pencil size={15} /> Edit
               </button>
