@@ -713,11 +713,13 @@ h4,
   }
 
   .admin-project-card .project-placeholder {
-    @apply mx-auto h-44 max-w-full sm:h-52 lg:h-56 lg:max-w-xl;
+    @apply mx-auto max-w-full lg:max-w-xl;
+    height: clamp(11rem, 22vw, 14rem);
   }
 
   .admin-project-card .project-image {
-    @apply mx-auto max-h-44 max-w-full object-contain sm:max-h-52 lg:max-h-56 lg:max-w-xl;
+    @apply mx-auto w-full max-w-full object-contain lg:max-w-xl;
+    height: clamp(11rem, 22vw, 14rem);
   }
 
   .admin-project-body {
