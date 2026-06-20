@@ -340,7 +340,7 @@ h4,
   .project-card .project-placeholder {
     @apply mx-auto max-w-full;
     width: min(100%, 34rem);
-    height: clamp(12rem, 20vw, 17rem);
+    height: 150px;
   }
 
   .project-card .project-image {
