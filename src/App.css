@@ -673,11 +673,11 @@ h4,
   }
 
   .admin-project-tools {
-    @apply mb-3 grid gap-3 rounded-lg border border-border bg-surface p-4 shadow-card lg:grid-cols-[minmax(260px,1fr)_auto_auto_auto] lg:items-center;
+    @apply mb-3 flex flex-wrap items-center gap-3 rounded-lg border border-border bg-surface p-4 shadow-card;
   }
 
   .admin-search-field {
-    @apply flex min-h-11 items-center gap-3 rounded-lg border border-border bg-surfaceSoft px-3 text-muted transition duration-200 focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10;
+    @apply flex min-h-11 min-w-72 flex-1 items-center gap-3 rounded-lg border border-border bg-surfaceSoft px-3 text-muted transition duration-200 focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10;
   }
 
   .admin-search-field svg {
@@ -689,11 +689,11 @@ h4,
   }
 
   .admin-filter-group {
-    @apply flex w-full flex-wrap gap-1 rounded-lg border border-border bg-surfaceSoft p-1 sm:w-fit;
+    @apply flex w-full shrink-0 flex-nowrap gap-1 overflow-x-auto rounded-lg border border-border bg-surfaceSoft p-1 sm:w-auto;
   }
 
   .admin-filter-group button {
-    @apply min-h-9 rounded-lg px-3 text-sm font-semibold text-muted transition duration-200 hover:bg-surface hover:text-primary;
+    @apply min-h-9 shrink-0 whitespace-nowrap rounded-lg px-3 text-sm font-semibold text-muted transition duration-200 hover:bg-surface hover:text-primary;
   }
 
   .admin-filter-group button.active {
@@ -701,7 +701,7 @@ h4,
   }
 
   .admin-clear-filters {
-    @apply min-w-20;
+    @apply min-w-20 shrink-0;
   }
 
   .admin-result-count {
