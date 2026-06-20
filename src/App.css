@@ -338,18 +338,12 @@ h4,
 
   .project-card .project-image,
   .project-card .project-placeholder {
-    @apply mx-auto max-w-full;
+    @apply mx-auto max-w-full overflow-hidden;
     width: min(100%, 34rem);
-    height: 150px;
+    height: 180px;
   }
 
   .project-card .project-image {
-    object-fit: contain;
-  }
-
-  .project-card .project-image.portrait {
-    width: 100%;
-    height: 150px;
     object-fit: cover;
     object-position: center;
   }
