@@ -677,7 +677,7 @@ h4,
   }
 
   .admin-search-field {
-    @apply flex min-h-11 min-w-72 flex-1 items-center gap-3 rounded-lg border border-border bg-surfaceSoft px-3 text-muted transition duration-200 focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10;
+    @apply flex min-h-11 min-w-72 flex-1 items-center gap-3 rounded-lg border border-border bg-surfaceSoft px-3 text-muted transition duration-200 focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10 lg:max-w-xl;
   }
 
   .admin-search-field svg {

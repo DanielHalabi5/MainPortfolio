@@ -781,7 +781,6 @@ function AdminProjects() {
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<ProjectFilter>('All');
-  const [featuredFilter, setFeaturedFilter] = useState<'All' | 'Featured' | 'Standard'>('All');
 
   useEffect(() => {
     let active = true;
@@ -832,9 +831,6 @@ function AdminProjects() {
 
     return projects.filter((project) => {
       const matchesCategory = categoryFilter === 'All' || project.category === categoryFilter;
-      const matchesFeatured =
-        featuredFilter === 'All' ||
-        (featuredFilter === 'Featured' ? Boolean(project.featured) : !project.featured);
       const searchableText = [
         project.title,
         project.slug,
@@ -844,11 +840,11 @@ function AdminProjects() {
         ...project.technologies
       ].join(' ').toLowerCase();
 
-      return matchesCategory && matchesFeatured && (!query || searchableText.includes(query));
+      return matchesCategory && (!query || searchableText.includes(query));
     });
-  }, [categoryFilter, featuredFilter, projects, searchTerm]);
+  }, [categoryFilter, projects, searchTerm]);
 
-  const hasActiveFilters = Boolean(searchTerm.trim()) || categoryFilter !== 'All' || featuredFilter !== 'All';
+  const hasActiveFilters = Boolean(searchTerm.trim()) || categoryFilter !== 'All';
 
   return (
     <AdminLayout>
@@ -884,18 +880,6 @@ function AdminProjects() {
             </button>
           ))}
         </div>
-        <div className="admin-filter-group" aria-label="Filter projects by featured state">
-          {(['All', 'Featured', 'Standard'] as const).map((item) => (
-            <button
-              className={featuredFilter === item ? 'active' : ''}
-              key={item}
-              type="button"
-              onClick={() => setFeaturedFilter(item)}
-            >
-              {item}
-            </button>
-          ))}
-        </div>
         <button
           className="btn-card admin-clear-filters"
           type="button"
@@ -903,7 +887,6 @@ function AdminProjects() {
           onClick={() => {
             setSearchTerm('');
             setCategoryFilter('All');
-            setFeaturedFilter('All');
           }}
         >
           <X size={15} /> Clear
