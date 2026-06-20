@@ -1070,6 +1070,8 @@ function AdminMessages() {
   const [replyStatus, setReplyStatus] = useState<{ id: string; message: string; failed?: boolean } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [messageSearchTerm, setMessageSearchTerm] = useState('');
+  const [messageStatusFilter, setMessageStatusFilter] = useState<'All' | 'Unread' | 'Read'>('All');
 
   useEffect(() => {
     let active = true;
@@ -1134,6 +1136,27 @@ function AdminMessages() {
     }
   }
 
+  const filteredMessages = useMemo(() => {
+    const query = messageSearchTerm.trim().toLowerCase();
+
+    return messages.filter((message) => {
+      const matchesStatus =
+        messageStatusFilter === 'All' ||
+        (messageStatusFilter === 'Read' ? message.read : !message.read);
+      const searchableText = [
+        message.name,
+        message.email,
+        message.message,
+        new Date(message.createdAt).toLocaleString(),
+        message.read ? 'read' : 'unread'
+      ].join(' ').toLowerCase();
+
+      return matchesStatus && (!query || searchableText.includes(query));
+    });
+  }, [messageSearchTerm, messageStatusFilter, messages]);
+
+  const hasActiveMessageFilters = Boolean(messageSearchTerm.trim()) || messageStatusFilter !== 'All';
+
   return (
     <AdminLayout>
       <div className="admin-heading">
@@ -1141,10 +1164,49 @@ function AdminMessages() {
         <h1>Contact Inbox</h1>
         <p>Review, mark, and delete messages submitted through the portfolio contact form.</p>
       </div>
+      <div className="admin-project-tools">
+        <label className="admin-search-field">
+          <Search size={18} />
+          <input
+            type="search"
+            value={messageSearchTerm}
+            onChange={(event) => setMessageSearchTerm(event.target.value)}
+            placeholder="Search by name, email, message, or date"
+          />
+        </label>
+        <div className="admin-filter-group" aria-label="Filter messages by status">
+          {(['All', 'Unread', 'Read'] as const).map((item) => (
+            <button
+              className={messageStatusFilter === item ? 'active' : ''}
+              key={item}
+              type="button"
+              onClick={() => setMessageStatusFilter(item)}
+            >
+              {item}
+            </button>
+          ))}
+        </div>
+        <button
+          className="btn-card admin-clear-filters"
+          type="button"
+          disabled={!hasActiveMessageFilters}
+          onClick={() => {
+            setMessageSearchTerm('');
+            setMessageStatusFilter('All');
+          }}
+        >
+          <X size={15} /> Clear
+        </button>
+      </div>
+      {!loading && !error && (
+        <p className="admin-result-count">
+          Showing {filteredMessages.length} of {messages.length} messages
+        </p>
+      )}
       {loading && <StateMessage icon={Loader2} title="Loading messages" message="Fetching contact submissions..." spinning />}
       {error && <StateMessage title="Messages unavailable" message={error} />}
       <div className="message-list">
-        {messages.map((message) => (
+        {filteredMessages.map((message) => (
           <article className={`message-card ${message.read ? 'read' : ''}`} key={message._id}>
             <div>
               <strong>{message.name}</strong>
@@ -1178,6 +1240,7 @@ function AdminMessages() {
           </article>
         ))}
         {!loading && !error && messages.length === 0 && <StateMessage title="No messages yet" message="New contact form messages will appear here." />}
+        {!loading && !error && messages.length > 0 && filteredMessages.length === 0 && <StateMessage title="No matching messages" message="Clear filters or try a different search." />}
       </div>
     </AdminLayout>
   );
