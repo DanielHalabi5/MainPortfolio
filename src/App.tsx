@@ -897,7 +897,7 @@ function AdminProjects() {
           ))}
         </div>
         <button
-          className={`btn-card admin-clear-filters ${hasActiveFilters ? '' : 'inactive'}`}
+          className="btn-card admin-clear-filters"
           type="button"
           disabled={!hasActiveFilters}
           onClick={() => {
@@ -906,7 +906,7 @@ function AdminProjects() {
             setFeaturedFilter('All');
           }}
         >
-          Clear
+          <X size={15} /> Clear
         </button>
       </div>
       {!loading && !error && (

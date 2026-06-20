@@ -704,10 +704,6 @@ h4,
     @apply min-w-20;
   }
 
-  .admin-clear-filters.inactive {
-    @apply pointer-events-none invisible;
-  }
-
   .admin-result-count {
     @apply mb-4 text-sm font-semibold text-muted;
   }
