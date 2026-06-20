@@ -677,7 +677,7 @@ h4,
   }
 
   .admin-search-field {
-    @apply flex min-h-11 min-w-72 flex-1 items-center gap-3 rounded-lg border border-border bg-surfaceSoft px-3 text-muted transition duration-200 focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10 lg:max-w-xl;
+    @apply flex min-h-11 min-w-0 flex-1 basis-full items-center gap-3 rounded-lg border border-border bg-surfaceSoft px-3 text-muted transition duration-200 focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10 sm:min-w-72 lg:max-w-xl lg:basis-auto;
   }
 
   .admin-search-field svg {
@@ -709,15 +709,15 @@ h4,
   }
 
   .admin-project-card {
-    @apply grid gap-4 rounded-lg border border-border bg-surface p-4 shadow-card transition duration-200 hover:-translate-y-1 hover:shadow-cardHover;
+    @apply grid gap-4 overflow-hidden rounded-lg border border-border bg-surface p-4 shadow-card transition duration-200 hover:-translate-y-1 hover:shadow-cardHover;
   }
 
   .admin-project-card .project-placeholder {
-    @apply mx-auto max-h-56 max-w-xl;
+    @apply mx-auto h-44 max-w-full sm:h-52 lg:h-56 lg:max-w-xl;
   }
 
   .admin-project-card .project-image {
-    @apply mx-auto max-h-56 max-w-xl object-contain;
+    @apply mx-auto max-h-44 max-w-full object-contain sm:max-h-52 lg:max-h-56 lg:max-w-xl;
   }
 
   .admin-project-body {
@@ -729,7 +729,7 @@ h4,
   }
 
   .admin-project-card h2 {
-    @apply text-base font-bold leading-6 text-text;
+    @apply text-base font-bold leading-6 text-text sm:text-lg sm:leading-7;
   }
 
   .admin-project-card p {
@@ -745,7 +745,12 @@ h4,
   }
 
   .admin-project-actions {
-    @apply flex flex-wrap gap-2 border-t border-border pt-4;
+    @apply grid gap-2 border-t border-border pt-4 sm:flex sm:flex-wrap;
+  }
+
+  .admin-project-actions .btn-card,
+  .admin-project-actions .btn-danger {
+    @apply w-full sm:w-auto;
   }
 
   .admin-row {
