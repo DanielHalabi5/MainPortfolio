@@ -24,13 +24,17 @@ function projectPayload(body) {
     title,
     slug,
     category: body.category,
-    description: body.description,
+    description: body.description?.trim(),
     technologies: parseTechnologies(body.technologies),
-    githubUrl: body.githubUrl || '',
-    liveUrl: body.liveUrl || '',
-    figmaUrl: body.figmaUrl || '',
+    githubUrl: body.githubUrl?.trim() || '',
+    liveUrl: body.liveUrl?.trim() || '',
+    figmaUrl: body.figmaUrl?.trim() || '',
     featured: body.featured === true || body.featured === 'true'
   };
+}
+
+function shouldRemoveImage(body) {
+  return body.removeImage === true || body.removeImage === 'true';
 }
 
 export async function getProjects(req, res) {
@@ -59,8 +63,8 @@ export async function createProject(req, res) {
 
   if (req.file) {
     payload.image = await saveProjectImage(req.file, req);
-  } else if (req.body.imageUrl) {
-    payload.image = { url: req.body.imageUrl, publicId: '' };
+  } else if (req.body.imageUrl?.trim()) {
+    payload.image = { url: req.body.imageUrl.trim(), publicId: '' };
   }
 
   const project = await Project.create(payload);
@@ -82,12 +86,18 @@ export async function updateProject(req, res) {
     }
 
     payload.image = await saveProjectImage(req.file, req);
-  } else if (req.body.imageUrl !== undefined) {
+  } else if (shouldRemoveImage(req.body)) {
     if (project.image?.publicId) {
       await deleteProjectImage(project.image.publicId);
     }
 
-    payload.image = { url: req.body.imageUrl, publicId: '' };
+    payload.image = { url: '', publicId: '' };
+  } else if (req.body.imageUrl?.trim()) {
+    if (project.image?.publicId) {
+      await deleteProjectImage(project.image.publicId);
+    }
+
+    payload.image = { url: req.body.imageUrl.trim(), publicId: '' };
   }
 
   const updatedProject = await Project.findByIdAndUpdate(project._id, payload, {

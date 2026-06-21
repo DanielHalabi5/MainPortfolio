@@ -105,7 +105,8 @@ function projectFormData(values: ProjectFormValues) {
   if (values.githubUrl) formData.append('githubUrl', values.githubUrl);
   if (values.liveUrl) formData.append('liveUrl', values.liveUrl);
   if (values.figmaUrl) formData.append('figmaUrl', values.figmaUrl);
-  if (values.imageUrl) formData.append('imageUrl', values.imageUrl);
+  if (values.imageUrl?.trim()) formData.append('imageUrl', values.imageUrl);
+  if (values.removeImage) formData.append('removeImage', 'true');
   if (values.image?.[0]) formData.append('image', values.image[0]);
 
   return formData;

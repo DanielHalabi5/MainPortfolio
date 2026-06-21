@@ -266,17 +266,32 @@ function Skills() {
   );
 }
 
-function ProjectVisual({ project }: { project: Project }) {
-  if (project.image?.url) {
-    return <img className="project-image" src={project.image.url} alt={project.title} />;
-  }
-
+function ProjectPlaceholder({ project }: { project: Project }) {
   return (
     <div className="project-placeholder">
       {project.category === 'Development' ? <MonitorSmartphone size={34} /> : <Palette size={34} />}
       <span>{project.category}</span>
     </div>
   );
+}
+
+function ProjectVisual({ project }: { project: Project }) {
+  const [failedImageUrl, setFailedImageUrl] = useState<string | null>(null);
+  const imageUrl = project.image?.url?.trim();
+
+  if (imageUrl && imageUrl !== failedImageUrl) {
+    return (
+      <img
+        className="project-image"
+        src={imageUrl}
+        alt={project.title}
+        loading="lazy"
+        onError={() => setFailedImageUrl(imageUrl)}
+      />
+    );
+  }
+
+  return <ProjectPlaceholder project={project} />;
 }
 
 function ProjectCard({ project }: { project: Project }) {
@@ -971,12 +986,13 @@ function ProjectForm({ editing, onSaved, onCancel }: { editing: Project | null; 
       slug: editing?.slug || '',
       category: editing?.category || 'Development',
       description: editing?.description || '',
-      imageUrl: editing?.image?.url || '',
+      imageUrl: editing?.image?.publicId ? '' : editing?.image?.url || '',
       technologies: editing?.technologies.join(', ') || '',
       githubUrl: editing?.githubUrl || '',
       liveUrl: editing?.liveUrl || '',
       figmaUrl: editing?.figmaUrl || '',
-      featured: Boolean(editing?.featured)
+      featured: Boolean(editing?.featured),
+      removeImage: false
     }
   });
   const [error, setError] = useState('');
@@ -1042,12 +1058,18 @@ function ProjectForm({ editing, onSaved, onCancel }: { editing: Project | null; 
       </label>
       <label>
         <span>Image URL</span>
-        <input {...register('imageUrl')} />
+        <input {...register('imageUrl')} placeholder={editing?.image?.publicId ? 'Leave blank to keep the uploaded image' : ''} />
       </label>
       <label>
         <span>Upload Image</span>
         <input type="file" accept="image/*" {...register('image')} />
       </label>
+      {editing?.image?.url && (
+        <label className="checkbox-field">
+          <input type="checkbox" {...register('removeImage')} />
+          <span>Remove current image</span>
+        </label>
+      )}
       <label className="checkbox-field">
         <input type="checkbox" {...register('featured')} />
         <span>Featured project</span>

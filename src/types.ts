@@ -67,4 +67,5 @@ export type ProjectFormValues = {
   figmaUrl?: string;
   featured: boolean;
   image?: FileList;
+  removeImage?: boolean;
 };
