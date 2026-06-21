@@ -73,12 +73,55 @@ function Logo() {
 
 function Header() {
   const [open, setOpen] = useState(false);
+  const location = useLocation();
+  const [activeSection, setActiveSection] = useState('home');
   const nav = [
-    { label: 'About', to: '/#about' },
-    { label: 'Skills', to: '/#skills' },
-    { label: 'Projects', to: '/projects' },
-    { label: 'Contact', to: '/#contact' }
+    { label: 'Home', to: '/#home', sectionId: 'home' },
+    { label: 'About', to: '/#about', sectionId: 'about' },
+    { label: 'Skills', to: '/#skills', sectionId: 'skills' },
+    { label: 'Projects', to: '/projects', sectionId: 'projects' },
+    { label: 'Contact', to: '/#contact', sectionId: 'contact' }
   ];
+
+  useEffect(() => {
+    if (location.pathname.startsWith('/projects')) {
+      setActiveSection('projects');
+      return;
+    }
+
+    if (location.pathname !== '/') {
+      setActiveSection('');
+      return;
+    }
+
+    const sectionIds = ['home', 'about', 'skills', 'contact'];
+    const hashSection = location.hash.replace('#', '');
+
+    if (sectionIds.includes(hashSection)) {
+      setActiveSection(hashSection);
+    }
+
+    function updateActiveSection() {
+      const offset = 140;
+      const currentSection = sectionIds.reduce((current, sectionId) => {
+        const section = document.getElementById(sectionId);
+        if (!section) return current;
+
+        return section.getBoundingClientRect().top <= offset ? sectionId : current;
+      }, 'home');
+
+      setActiveSection(currentSection);
+    }
+
+    updateActiveSection();
+    window.addEventListener('scroll', updateActiveSection, { passive: true });
+    window.addEventListener('resize', updateActiveSection);
+
+    return () => {
+      window.removeEventListener('scroll', updateActiveSection);
+      window.removeEventListener('resize', updateActiveSection);
+    };
+  }, [location.hash, location.pathname]);
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/80 bg-bg/85 backdrop-blur-xl">
@@ -86,7 +129,7 @@ function Header() {
         <Logo />
         <nav className="hidden items-center gap-8 text-sm md:flex">
           {nav.map((item) => (
-            <Link className="nav-link" key={item.label} to={item.to}>
+            <Link className={`nav-link ${activeSection === item.sectionId ? 'active' : ''}`} key={item.label} to={item.to}>
               {item.label}
             </Link>
           ))}
@@ -108,7 +151,7 @@ function Header() {
           </div>
           <div className="grid gap-3">
             {nav.map((item) => (
-              <Link className="mobile-link" key={item.label} to={item.to} onClick={() => setOpen(false)}>
+              <Link className={`mobile-link ${activeSection === item.sectionId ? 'active' : ''}`} key={item.label} to={item.to} onClick={() => setOpen(false)}>
                 {item.label}
               </Link>
             ))}

@@ -72,8 +72,20 @@ h4,
     @apply inline-flex items-center gap-2 text-muted transition duration-200 hover:text-primary;
   }
 
+  .nav-link.active {
+    @apply font-semibold text-primary;
+  }
+
+  .nav-link.active::after {
+    @apply h-1.5 w-1.5 rounded-full bg-primary content-[''];
+  }
+
   .mobile-link {
     @apply rounded-lg border border-border bg-surface px-4 py-3 text-sm font-semibold text-text transition duration-200 hover:border-primary hover:bg-secondary hover:text-primary;
+  }
+
+  .mobile-link.active {
+    @apply border-primary bg-secondary text-primary;
   }
 
   .btn-primary {
