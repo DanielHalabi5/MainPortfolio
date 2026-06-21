@@ -94,7 +94,7 @@ function Header() {
       return;
     }
 
-    const sectionIds = ['home', 'about', 'skills', 'contact'];
+    const sectionIds = ['home', 'about', 'skills', 'projects', 'contact'];
     const hashSection = location.hash.replace('#', '');
 
     if (sectionIds.includes(hashSection)) {
@@ -102,15 +102,18 @@ function Header() {
     }
 
     function updateActiveSection() {
-      const offset = 140;
-      const currentSection = sectionIds.reduce((current, sectionId) => {
+      const marker = window.innerHeight * 0.36;
+      const currentSection = sectionIds.reduce<{ id: string; distance: number }>((current, sectionId) => {
         const section = document.getElementById(sectionId);
         if (!section) return current;
 
-        return section.getBoundingClientRect().top <= offset ? sectionId : current;
-      }, 'home');
+        const rect = section.getBoundingClientRect();
+        const distance = Math.abs(rect.top - marker);
 
-      setActiveSection(currentSection);
+        return distance < current.distance ? { id: sectionId, distance } : current;
+      }, { id: 'home', distance: Number.POSITIVE_INFINITY });
+
+      setActiveSection(currentSection.id);
     }
 
     updateActiveSection();
