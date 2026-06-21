@@ -1,9 +1,10 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { randomUUID } from 'crypto';
+import mongoose from 'mongoose';
+import { ProjectImage } from '../models/ProjectImage.js';
 
 const uploadRoot = path.join(process.cwd(), 'server', 'uploads');
-const projectUploadDir = path.join(uploadRoot, 'projects');
 
 function requestOrigin(req) {
   return `${req.protocol}://${req.get('host')}`;
@@ -28,22 +29,26 @@ function extensionFor(file) {
 }
 
 export async function saveProjectImage(file, req) {
-  await fs.mkdir(projectUploadDir, { recursive: true });
-
   const fileName = `${Date.now()}-${randomUUID()}${extensionFor(file)}`;
-  const relativePath = `projects/${fileName}`;
-  const filePath = path.join(projectUploadDir, fileName);
-
-  await fs.writeFile(filePath, file.buffer);
+  const image = await ProjectImage.create({
+    fileName,
+    contentType: file.mimetype,
+    data: file.buffer
+  });
 
   return {
-    url: `${requestOrigin(req)}/uploads/${relativePath}`,
-    publicId: relativePath
+    url: `${requestOrigin(req)}/api/uploads/projects/${image._id}`,
+    publicId: `mongo:${image._id}`
   };
 }
 
 export async function deleteProjectImage(publicId) {
   if (!publicId || publicId.startsWith('http')) return;
+
+  if (publicId.startsWith('mongo:')) {
+    await ProjectImage.findByIdAndDelete(publicId.replace('mongo:', ''));
+    return;
+  }
 
   const filePath = path.normalize(path.join(uploadRoot, publicId));
 
@@ -52,6 +57,27 @@ export async function deleteProjectImage(publicId) {
   }
 
   await fs.rm(filePath, { force: true });
+}
+
+export async function serveProjectImage(req, res) {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    res.status(404).json({ message: 'Image not found' });
+    return;
+  }
+
+  const image = await ProjectImage.findById(req.params.id);
+
+  if (!image) {
+    res.status(404).json({ message: 'Image not found' });
+    return;
+  }
+
+  res.set({
+    'Cache-Control': 'public, max-age=31536000, immutable',
+    'Content-Type': image.contentType,
+    'Content-Length': image.data.length
+  });
+  res.send(image.data);
 }
 
 export const uploadsDirectory = uploadRoot;

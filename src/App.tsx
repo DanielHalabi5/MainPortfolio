@@ -75,6 +75,7 @@ function Header() {
   const [open, setOpen] = useState(false);
   const location = useLocation();
   const [activeSection, setActiveSection] = useState('home');
+  const displayedActiveSection = location.pathname.startsWith('/projects') ? 'projects' : activeSection;
   const nav = [
     { label: 'Home', to: '/#home', sectionId: 'home' },
     { label: 'About', to: '/#about', sectionId: 'about' },
@@ -84,22 +85,11 @@ function Header() {
   ];
 
   useEffect(() => {
-    if (location.pathname.startsWith('/projects')) {
-      setActiveSection('projects');
-      return;
-    }
-
     if (location.pathname !== '/') {
-      setActiveSection('');
       return;
     }
 
     const sectionIds = ['home', 'about', 'skills', 'projects', 'contact'];
-    const hashSection = location.hash.replace('#', '');
-
-    if (sectionIds.includes(hashSection)) {
-      setActiveSection(hashSection);
-    }
 
     function updateActiveSection() {
       const marker = window.innerHeight * 0.36;
@@ -132,7 +122,7 @@ function Header() {
         <Logo />
         <nav className="hidden items-center gap-8 text-sm md:flex">
           {nav.map((item) => (
-            <Link className={`nav-link ${activeSection === item.sectionId ? 'active' : ''}`} key={item.label} to={item.to}>
+            <Link className={`nav-link ${displayedActiveSection === item.sectionId ? 'active' : ''}`} key={item.label} to={item.to} onClick={() => setActiveSection(item.sectionId)}>
               {item.label}
             </Link>
           ))}
@@ -154,7 +144,15 @@ function Header() {
           </div>
           <div className="grid gap-3">
             {nav.map((item) => (
-              <Link className={`mobile-link ${activeSection === item.sectionId ? 'active' : ''}`} key={item.label} to={item.to} onClick={() => setOpen(false)}>
+              <Link
+                className={`mobile-link ${displayedActiveSection === item.sectionId ? 'active' : ''}`}
+                key={item.label}
+                to={item.to}
+                onClick={() => {
+                  setActiveSection(item.sectionId);
+                  setOpen(false);
+                }}
+              >
                 {item.label}
               </Link>
             ))}

@@ -7,7 +7,7 @@ import { adminRoutes } from './routes/adminRoutes.js';
 import { authRoutes } from './routes/authRoutes.js';
 import { messageRoutes } from './routes/messageRoutes.js';
 import { projectRoutes } from './routes/projectRoutes.js';
-import { uploadsDirectory } from './utils/localUploads.js';
+import { serveProjectImage, uploadsDirectory } from './utils/localUploads.js';
 
 dotenv.config();
 
@@ -37,6 +37,7 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
 
+app.get('/api/uploads/projects/:id', serveProjectImage);
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/messages', messageRoutes);
