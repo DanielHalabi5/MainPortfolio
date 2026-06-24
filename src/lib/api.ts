@@ -16,6 +16,41 @@ export const api = axios.create({
   baseURL: apiBaseUrl()
 });
 
+function apiOriginUrl(path: string) {
+  const baseUrl = apiBaseUrl();
+  const normalizedPath = path.startsWith('/api/') ? path.slice('/api'.length) : path;
+  return `${baseUrl}${normalizedPath.startsWith('/') ? normalizedPath : `/${normalizedPath}`}`;
+}
+
+function normalizedProject(project: Project): Project {
+  const publicId = project.image?.publicId;
+  const imageId = publicId?.startsWith('mongo:') ? publicId.replace('mongo:', '') : '';
+
+  if (imageId) {
+    return {
+      ...project,
+      image: {
+        ...project.image,
+        url: apiOriginUrl(`/uploads/projects/${imageId}`)
+      }
+    };
+  }
+
+  const imageUrl = project.image?.url?.trim();
+
+  if (imageUrl?.startsWith('/api/') || imageUrl?.startsWith('/uploads/')) {
+    return {
+      ...project,
+      image: {
+        ...project.image,
+        url: apiOriginUrl(imageUrl)
+      }
+    };
+  }
+
+  return project;
+}
+
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('adminToken');
 
@@ -37,12 +72,12 @@ export function clearAdminToken() {
 export async function fetchProjects(filter: ProjectFilter = 'All') {
   const params = filter === 'All' ? undefined : { category: filter };
   const { data } = await api.get<{ projects: Project[] }>('/projects', { params });
-  return data.projects;
+  return data.projects.map(normalizedProject);
 }
 
 export async function fetchProject(slug: string) {
   const { data } = await api.get<{ project: Project }>(`/projects/${slug}`);
-  return data.project;
+  return normalizedProject(data.project);
 }
 
 export async function sendMessage(values: MessageFormValues) {
@@ -114,12 +149,12 @@ function projectFormData(values: ProjectFormValues) {
 
 export async function createProject(values: ProjectFormValues) {
   const { data } = await api.post<{ project: Project }>('/projects', projectFormData(values));
-  return data.project;
+  return normalizedProject(data.project);
 }
 
 export async function updateProject(id: string, values: ProjectFormValues) {
   const { data } = await api.put<{ project: Project }>(`/projects/${id}`, projectFormData(values));
-  return data.project;
+  return normalizedProject(data.project);
 }
 
 export async function deleteProject(id: string) {

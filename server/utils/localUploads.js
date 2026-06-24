@@ -6,10 +6,6 @@ import { ProjectImage } from '../models/ProjectImage.js';
 
 const uploadRoot = path.join(process.cwd(), 'server', 'uploads');
 
-function requestOrigin(req) {
-  return `${req.protocol}://${req.get('host')}`;
-}
-
 function extensionFor(file) {
   const originalExtension = path.extname(file.originalname || '').toLowerCase();
 
@@ -28,7 +24,7 @@ function extensionFor(file) {
   return mimeExtensions[file.mimetype] || '.jpg';
 }
 
-export async function saveProjectImage(file, req) {
+export async function saveProjectImage(file) {
   const fileName = `${Date.now()}-${randomUUID()}${extensionFor(file)}`;
   const image = await ProjectImage.create({
     fileName,
@@ -37,7 +33,7 @@ export async function saveProjectImage(file, req) {
   });
 
   return {
-    url: `${requestOrigin(req)}/api/uploads/projects/${image._id}`,
+    url: `/api/uploads/projects/${image._id}`,
     publicId: `mongo:${image._id}`
   };
 }

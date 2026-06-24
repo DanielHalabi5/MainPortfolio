@@ -62,7 +62,7 @@ export async function createProject(req, res) {
   }
 
   if (req.file) {
-    payload.image = await saveProjectImage(req.file, req);
+    payload.image = await saveProjectImage(req.file);
   } else if (req.body.imageUrl?.trim()) {
     payload.image = { url: req.body.imageUrl.trim(), publicId: '' };
   }
@@ -85,7 +85,7 @@ export async function updateProject(req, res) {
       await deleteProjectImage(project.image.publicId);
     }
 
-    payload.image = await saveProjectImage(req.file, req);
+    payload.image = await saveProjectImage(req.file);
   } else if (shouldRemoveImage(req.body)) {
     if (project.image?.publicId) {
       await deleteProjectImage(project.image.publicId);
