@@ -350,12 +350,12 @@ h4,
 
   .project-card .project-image,
   .project-card .project-placeholder {
-    @apply mx-auto max-w-full overflow-hidden;
-    width: min(100%, 34rem);
-    height: 180px;
+    @apply mx-auto w-full max-w-full overflow-hidden;
+    aspect-ratio: 16 / 10;
   }
 
   .project-card .project-image {
+    height: auto;
     object-fit: cover;
     object-position: center;
   }
@@ -398,11 +398,13 @@ h4,
 
   .project-image {
     @apply block w-full rounded-lg border border-border bg-surfaceSoft object-cover;
-    height: clamp(10rem, 24vw, 13.5rem);
+    aspect-ratio: 16 / 10;
+    height: auto;
   }
 
   .project-placeholder {
-    @apply aspect-video h-auto w-full rounded-lg border border-border;
+    @apply h-auto w-full rounded-lg border border-border;
+    aspect-ratio: 16 / 10;
   }
 
   .project-placeholder {
