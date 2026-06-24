@@ -356,7 +356,7 @@ h4,
   }
 
   .project-card .project-image {
-    object-fit: contain;
+    object-fit: cover;
     object-position: center;
   }
 
@@ -397,7 +397,7 @@ h4,
   }
 
   .project-image {
-    @apply block w-full rounded-lg border border-border bg-surfaceSoft object-contain;
+    @apply block w-full rounded-lg border border-border bg-surfaceSoft object-cover;
     height: clamp(10rem, 24vw, 13.5rem);
   }
 
@@ -743,7 +743,7 @@ h4,
   }
 
   .admin-project-card .project-image {
-    @apply mx-auto w-full max-w-full object-contain lg:max-w-xl;
+    @apply mx-auto w-full max-w-full object-cover lg:max-w-xl;
     height: clamp(11rem, 22vw, 14rem);
   }
 
