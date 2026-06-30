@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 import { ProjectImage } from '../models/ProjectImage.js';
 
 const uploadRoot = path.join(process.cwd(), 'server', 'uploads');
+const projectUploadRoot = path.join(uploadRoot, 'projects');
 
 function extensionFor(file) {
   const originalExtension = path.extname(file.originalname || '').toLowerCase();
@@ -57,14 +58,29 @@ export async function deleteProjectImage(publicId) {
 
 export async function serveProjectImage(req, res) {
   if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-    res.status(404).json({ message: 'Image not found' });
-    return;
+    const legacyPath = path.resolve(projectUploadRoot, req.params.id);
+    const safeProjectUploadRoot = path.resolve(projectUploadRoot);
+
+    if (!legacyPath.startsWith(`${safeProjectUploadRoot}${path.sep}`)) {
+      res.status(404).type('text/plain').send('Image not found');
+      return;
+    }
+
+    try {
+      await fs.access(legacyPath);
+      res.set('Cache-Control', 'public, max-age=31536000, immutable');
+      res.sendFile(legacyPath);
+      return;
+    } catch {
+      res.status(404).type('text/plain').send('Image not found');
+      return;
+    }
   }
 
   const image = await ProjectImage.findById(req.params.id);
 
   if (!image) {
-    res.status(404).json({ message: 'Image not found' });
+    res.status(404).type('text/plain').send('Image not found');
     return;
   }
 
