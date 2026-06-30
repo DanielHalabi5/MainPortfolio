@@ -1,55 +1,96 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
-function createSmtpTransporter() {
-  const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS } = process.env;
+const DEFAULT_FROM_EMAIL = 'onboarding@resend.dev';
 
-  if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) {
+function envValue(key) {
+  return process.env[key]?.trim();
+}
+
+function createResendClient() {
+  const RESEND_API_KEY = envValue('RESEND_API_KEY');
+
+  if (!RESEND_API_KEY) {
     return null;
   }
 
-  return nodemailer.createTransport({
-    host: SMTP_HOST,
-    port: Number(SMTP_PORT || 587),
-    secure: Number(SMTP_PORT) === 465,
-    auth: {
-      user: SMTP_USER,
-      pass: SMTP_PASS
-    }
+  return new Resend(RESEND_API_KEY);
+}
+
+function contactReceiverEmail() {
+  return envValue('CONTACT_RECEIVER_EMAIL');
+}
+
+function fromEmail() {
+  return envValue('RESEND_FROM_EMAIL') || DEFAULT_FROM_EMAIL;
+}
+
+function configurationError(message) {
+  const error = new Error(message);
+  error.status = 500;
+  error.details = { message };
+  return error;
+}
+
+export async function sendResendEmail(email) {
+  const resend = createResendClient();
+
+  if (!resend) {
+    throw configurationError('Missing RESEND_API_KEY');
+  }
+
+  const { data, error } = await resend.emails.send(email);
+
+  if (error) {
+    console.error('RESEND ERROR:', JSON.stringify(error, null, 2));
+    const resendError = new Error(error.message || 'Resend email failed');
+    resendError.status = 500;
+    resendError.details = error;
+    throw resendError;
+  }
+
+  console.log('RESEND SUCCESS:', data);
+  return data;
+}
+
+export async function sendTestEmail() {
+  const to = contactReceiverEmail();
+
+  if (!to) {
+    throw configurationError('Missing CONTACT_RECEIVER_EMAIL');
+  }
+
+  return sendResendEmail({
+    from: `Portfolio <${DEFAULT_FROM_EMAIL}>`,
+    to,
+    subject: 'Portfolio Test',
+    html: '<h2>It works!</h2>'
   });
 }
 
 export async function sendContactNotification(message) {
-  const { SMTP_USER, CONTACT_EMAIL } = process.env;
-  const transporter = createSmtpTransporter();
+  const to = contactReceiverEmail();
 
-  if (!transporter || !CONTACT_EMAIL) {
-    return { skipped: true };
+  if (!to) {
+    throw configurationError('Missing CONTACT_RECEIVER_EMAIL');
   }
 
-  await transporter.sendMail({
-    from: `"Portfolio Contact" <${SMTP_USER}>`,
-    to: CONTACT_EMAIL,
+  const data = await sendResendEmail({
+    from: `Portfolio Contact <${fromEmail()}>`,
+    to,
     subject: `New portfolio message from ${message.name}`,
     replyTo: message.email,
     text: `${message.name} (${message.email}) sent:\n\n${message.message}`
   });
 
-  return { skipped: false };
+  return { skipped: false, id: data?.id, data };
 }
 
 export async function sendContactReply({ to, subject, body }) {
-  const { SMTP_USER, CONTACT_EMAIL } = process.env;
-  const transporter = createSmtpTransporter();
-
-  if (!transporter) {
-    throw new Error('SMTP is not configured');
-  }
-
-  await transporter.sendMail({
-    from: `"Daniel Halabi" <${SMTP_USER}>`,
+  await sendResendEmail({
+    from: `Daniel Halabi <${fromEmail()}>`,
     to,
     subject,
-    replyTo: CONTACT_EMAIL || SMTP_USER,
+    replyTo: contactReceiverEmail() || fromEmail(),
     text: body
   });
 

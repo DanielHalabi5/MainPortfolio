@@ -34,10 +34,11 @@ export async function createMessage(req, res) {
   }
 
   const savedMessage = await Message.create({ name, email, message });
-  await sendContactNotification(savedMessage);
+  const emailDelivery = await sendContactNotification(savedMessage);
 
   res.status(201).json({
     message: 'Message sent successfully',
+    email: emailDelivery,
     data: savedMessage
   });
 }

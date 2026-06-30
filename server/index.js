@@ -8,12 +8,13 @@ import { authRoutes } from './routes/authRoutes.js';
 import { messageRoutes } from './routes/messageRoutes.js';
 import { projectRoutes } from './routes/projectRoutes.js';
 import { serveProjectImage, uploadsDirectory } from './utils/localUploads.js';
+import { sendTestEmail } from './utils/mailer.js';
 
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 5000;
-const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
+const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173,https://danielhalabi.netlify.app')
   .split(',')
   .map((origin) => origin.trim().replace(/\/$/, ''))
   .filter(Boolean);
@@ -37,6 +38,32 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
 
+app.get('/test-email', async (_req, res) => {
+  try {
+    const data = await sendTestEmail();
+    res.json({
+      success: true,
+      id: data?.id,
+      data
+    });
+  } catch (error) {
+    if (error.details) {
+      return res.status(error.status || 500).json({
+        success: false,
+        error: error.details
+      });
+    }
+
+    console.error('TEST EMAIL ERROR:', error);
+    return res.status(500).json({
+      success: false,
+      error: {
+        message: error.message || 'Email failed'
+      }
+    });
+  }
+});
+
 app.get('/api/uploads/projects/:id', serveProjectImage);
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
@@ -45,6 +72,14 @@ app.use('/api/admin', adminRoutes);
 
 app.use((err, _req, res, _next) => {
   console.error(err);
+
+  if (err.details) {
+    return res.status(err.status || 500).json({
+      message: err.message || 'Server error',
+      error: err.details
+    });
+  }
+
   res.status(err.status || 500).json({
     message: err.message || 'Server error'
   });
