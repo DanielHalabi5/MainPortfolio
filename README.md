@@ -9,7 +9,7 @@ A dynamic full-stack portfolio for Daniel Halabi built with React, TypeScript, T
 - Project filters for All, Development, and UI/UX
 - Project details pages with technologies, links, and image support
 - Contact form that saves messages in MongoDB
-- Optional email notifications through Nodemailer SMTP settings
+- Email notifications through Resend
 - Protected admin login using JWT
 - Admin dashboard overview with project and message totals
 - Project management: add, edit, delete, image URL, MongoDB-backed image uploads, and CV replacement
@@ -22,7 +22,7 @@ A dynamic full-stack portfolio for Daniel Halabi built with React, TypeScript, T
 - Backend: Node.js, Express, Mongoose, MongoDB
 - Auth: JWT, bcryptjs
 - Uploads: Multer with MongoDB-backed project image storage
-- Email: Nodemailer
+- Email: Resend
 - Tooling: ESLint, TypeScript
 
 ## Getting Started
@@ -33,7 +33,7 @@ A dynamic full-stack portfolio for Daniel Halabi built with React, TypeScript, T
 npm install
 ```
 
-2. Create a local `.env` file with your MongoDB URI, JWT secret, admin credentials, and optional SMTP settings.
+2. Create a local `.env` file with your MongoDB URI, JWT secret, admin credentials, and email settings.
 
 3. Seed the admin user and starter projects:
 
@@ -72,17 +72,15 @@ Supported backend variables:
 - `ADMIN_NAME`
 - `ADMIN_EMAIL`
 - `ADMIN_PASSWORD`
-- `SMTP_HOST`
-- `SMTP_PORT`
-- `SMTP_USER`
-- `SMTP_PASS`
-- `CONTACT_EMAIL`
+- `RESEND_API_KEY`
+- `CONTACT_RECEIVER_EMAIL`
+- `RESEND_FROM_EMAIL`
 
 Supported frontend variable:
 
 - `VITE_API_URL`
 
-SMTP is optional for local development. Project images uploaded from the admin are stored in MongoDB and served from `/api/uploads/projects/:id`. Existing local `/uploads` files and external image URLs are still supported.
+Resend is used when `RESEND_API_KEY` and `CONTACT_RECEIVER_EMAIL` are configured. `RESEND_FROM_EMAIL` is optional and defaults to `onboarding@resend.dev` for testing. Project images uploaded from the admin are stored in MongoDB and served from `/api/uploads/projects/:id`. Existing local `/uploads` files and external image URLs are still supported.
 
 ## Scripts
 
@@ -100,6 +98,7 @@ npm run preview  # Preview production build
 - Set a long random `JWT_SECRET`
 - Use a real MongoDB connection string
 - Uploaded project images are stored in MongoDB so they survive server redeploys and restarts
-- Configure SMTP variables for contact notifications
+- On Render, set `RESEND_API_KEY` and `CONTACT_RECEIVER_EMAIL`; optionally set `RESEND_FROM_EMAIL` after verifying a sender/domain in Resend
+- Test Render email delivery by visiting `/test-email` on the backend URL
 - Set `VITE_API_URL` if the frontend and backend are deployed on different origins
 - Never commit `.env` or credential files
